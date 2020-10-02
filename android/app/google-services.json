@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "124594177858",
+    "firebase_url": "https://sharelymeter-9fe02.firebaseio.com",
+    "project_id": "sharelymeter-9fe02",
+    "storage_bucket": "sharelymeter-9fe02.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124594177858:android:e4672eea0f2d98c76aeadb",
+        "android_client_info": {
+          "package_name": "com.example.chat_app_tutorial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124594177858-j6b0u9944io50vesd1olfsp53une9hlr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB75sEKKtxMjfyuT3CkNT3LkCAfmxgWj_c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124594177858-j6b0u9944io50vesd1olfsp53une9hlr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124594177858-r2dj97skht3pl23u82som730nobu25l3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatAppTutorial"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124594177858:android:6378dc4d5ef137eb6aeadb",
+        "android_client_info": {
+          "package_name": "com.sharelymeter.SharelyMeter.sharelymeter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124594177858-j6b0u9944io50vesd1olfsp53une9hlr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB75sEKKtxMjfyuT3CkNT3LkCAfmxgWj_c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124594177858-j6b0u9944io50vesd1olfsp53une9hlr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124594177858-r2dj97skht3pl23u82som730nobu25l3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatAppTutorial"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
