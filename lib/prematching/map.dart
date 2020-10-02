@@ -387,7 +387,7 @@ class _MapViewState extends State<MapView> {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
+                  padding: const EdgeInsets.only(top: 5.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white70,
@@ -397,7 +397,7 @@ class _MapViewState extends State<MapView> {
                     ),
                     width: width * 0.9,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                      padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
@@ -405,7 +405,7 @@ class _MapViewState extends State<MapView> {
                             'Places',
                             style: TextStyle(fontSize: 20.0),
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: 5),
                           _textField(
                               label: 'Start',
                               hint: 'Choose starting point',
@@ -424,7 +424,7 @@ class _MapViewState extends State<MapView> {
                                   _startAddress = value;
                                 });
                               }),
-                          SizedBox(height: 10),
+                          SizedBox(height: 5),
                           _textField(
                               label: 'Destination',
                               hint: 'Choose destination',
@@ -436,13 +436,13 @@ class _MapViewState extends State<MapView> {
                                   _destinationAddress = value;
                                 });
                               }),
-                          SizedBox(height: 10),
+                          SizedBox(height: 5),
                           Visibility(
                             visible: _placeDistance == null ? false : true,
                             child: Text(
                               'DISTANCE: $_placeDistance km',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -482,7 +482,7 @@ class _MapViewState extends State<MapView> {
                                 : null,
                             color: Colors.red,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
+                              borderRadius: BorderRadius.circular(5.0),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -490,7 +490,7 @@ class _MapViewState extends State<MapView> {
                                 'Show Route'.toUpperCase(),
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20.0,
+                                  fontSize: 15.0,
                                 ),
                               ),
                             ),
@@ -505,9 +505,9 @@ class _MapViewState extends State<MapView> {
             // Show current location button
             SafeArea(
               child: Align(
-                alignment: Alignment.bottomRight,
+                alignment: Alignment.bottomLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                  padding: const EdgeInsets.only(left: 5.0, bottom: 25.0),
                   child: ClipOval(
                     child: Material(
                       color: Colors.orange[100], // button color
