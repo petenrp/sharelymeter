@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/constants.dart';
 import 'package:sharelymeter/screens/welcome/welcomescreen.dart';
+import 'package:sharelymeter/screens/sharelymeter.dart';
 import 'package:sharelymeter/screens/wrapper.dart';
 import 'package:sharelymeter/service/auth.dart';
 import 'package:provider/provider.dart';
@@ -20,14 +21,14 @@ void main() {
 
 class MyApp extends StatefulWidget {
   MyApp({Key key}) : super(key: key);
-  
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   bool _initialized = false;
-  bool _error = false; 
+  bool _error = false;
 
   void initializeFlutterFire() async {
     try {
@@ -48,8 +49,8 @@ class _MyAppState extends State<MyApp> {
     initializeFlutterFire();
     super.initState();
   }
-  
-   @override
+
+  @override
   Widget build(BuildContext context) {
     // Show error message if initialization failed
     if (_error) {
@@ -83,7 +84,8 @@ class _MyAppState extends State<MyApp> {
           appBarTheme: AppBarTheme(color: kPrimaryColor, elevation: 0),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: Wrapper(),
+        //home: Wrapper(),
+        home: SharelyMeter(),
       ),
     );
   }
