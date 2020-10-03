@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/constants.dart';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import 'package:sharelymeter/screens/welcome/welcomescreen.dart';
 import 'package:sharelymeter/screens/sharelymeter.dart';
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 import 'package:sharelymeter/screens/wrapper.dart';
@@ -87,6 +90,12 @@ class _MyAppState extends State<MyApp> {
   }
 }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+
+
+>>>>>>> Stashed changes
 =======
 
 
