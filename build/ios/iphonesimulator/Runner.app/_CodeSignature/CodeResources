@@ -10,19 +10,23 @@
 		</data>
 		<key>AppIcon60x60@2x.png</key>
 		<data>
-		MNA6Om2kzE2UK2cASqifjyQOcDk=
+		CwOz8sYRzRqnqeuuwEQj1WKbDcQ=
 		</data>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<data>
-		TEis89bYJ5ERdh64hNbenveZwtg=
+		NjlpU5W43ZKZjlrBfyb7t7+eiZY=
 		</data>
 		<key>Assets.car</key>
 		<data>
-		5CljM15Wpr5Vw/kopW9nhxObwcg=
+		kKpeOmtPmUEEWCBdNEu74tt6m84=
 		</data>
 		<key>Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
+<<<<<<< Updated upstream
 		+PzdpvGZ7zOp9Q8rOg3396nKvSk=
+=======
+		e5sop6wdx6xFjnxJ+QzwsFeBQx8=
+>>>>>>> Stashed changes
 		</data>
 		<key>Base.lproj/LaunchScreen.storyboardc/Info.plist</key>
 		<data>
@@ -30,11 +34,19 @@
 		</data>
 		<key>Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib</key>
 		<data>
+<<<<<<< Updated upstream
 		SKXIrQgqz0Y9sGYHaG+/Enmk38o=
 		</data>
 		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib</key>
 		<data>
 		OAjmK2dwVfO/cRx3rn3y3dlDZQw=
+=======
+		D5we9lrECUk8XdRkCvjXb3msr4E=
+		</data>
+		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib</key>
+		<data>
+		nR70K/BvLV/l80eLIIv84jrNcYk=
+>>>>>>> Stashed changes
 		</data>
 		<key>Base.lproj/Main.storyboardc/Info.plist</key>
 		<data>
@@ -42,11 +54,19 @@
 		</data>
 		<key>Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib</key>
 		<data>
+<<<<<<< Updated upstream
 		LJX5owqUWrB2W4xQlU0BNZmr1FU=
 		</data>
 		<key>Frameworks/App.framework/App</key>
 		<data>
 		tep/UTbXeh6BACSurk3TB6zgH/4=
+=======
+		UdxMutw43WHK4/cpu7ipZNbObhA=
+		</data>
+		<key>Frameworks/App.framework/App</key>
+		<data>
+		iW4bmFenKYnebTT7UJYxisWVzzY=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/App.framework/Info.plist</key>
 		<data>
@@ -54,11 +74,15 @@
 		</data>
 		<key>Frameworks/App.framework/_CodeSignature/CodeResources</key>
 		<data>
+<<<<<<< Updated upstream
 		zbY34YICgj5ar3+Ou/yJe+yfv4Q=
+=======
+		fwXsXthR/QFNx9HmB5dcJ0ejPpY=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.json</key>
 		<data>
-		GzNSU+baVVIx9XlAbWMc09br7h4=
+		+YGkZtDhIRJDTA7n4WnkGnJg91A=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/FontManifest.json</key>
 		<data>
@@ -66,7 +90,11 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/NOTICES</key>
 		<data>
+<<<<<<< Updated upstream
 		PqtC25x+UjZgTyPzRh6Z0YtRf5c=
+=======
+		awAaGYmWXh0spS1obKYykm2UHQI=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/assets/icons/.DS_Store</key>
 		<data>
@@ -214,7 +242,59 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/assets/images/.DS_Store</key>
 		<data>
-		Kfq5lFa8WacSXbG8dsb5nZ7O4Lo=
+		w7kv/DtYlPNHaZKKhqi7npX5C34=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/1024.png</key>
+		<data>
+		rJPIydu7FiZuCTQOcP5Vvoktvo0=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/120.png</key>
+		<data>
+		CwOz8sYRzRqnqeuuwEQj1WKbDcQ=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/152.png</key>
+		<data>
+		NjlpU5W43ZKZjlrBfyb7t7+eiZY=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/167.png</key>
+		<data>
+		aI9BZzgVoOwOZKSDG6F0IMHt3pc=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/180.png</key>
+		<data>
+		rJPIydu7FiZuCTQOcP5Vvoktvo0=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/20.png</key>
+		<data>
+		yLvgOk3SVVSbFWUA/1gvtemdxxo=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/29.png</key>
+		<data>
+		zslvejodnlcKhRXjMQKuiA9Ttac=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/40.png</key>
+		<data>
+		HbvabjasNDuBhv9igs+3T59Uz/Q=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/58.png</key>
+		<data>
+		AvE/qe4OgDQH/jD5L3oAFIkC9j8=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/60.png</key>
+		<data>
+		JXRyQxbiqj2MRmryx+Ev5VpJ7bc=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/76.png</key>
+		<data>
+		xDKcZTqfqpY0xwL+wJCo8vBTnDY=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/80.png</key>
+		<data>
+		qD6fUDwpaXph1MrOuR4WgP5szLc=
+		</data>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/87.png</key>
+		<data>
+		KUCdZNKmI/dKnra5opvw42sdbxY=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/assets/images/chat.svg</key>
 		<data>
@@ -256,10 +336,6 @@
 		<data>
 		oXKRDA18hawJTpXGIzxUj3l9Iio=
 		</data>
-		<key>Frameworks/App.framework/flutter_assets/assets/images/sharlymeter.png</key>
-		<data>
-		UaAO7bBIpPA2HI45j3auspnXzGk=
-		</data>
 		<key>Frameworks/App.framework/flutter_assets/assets/images/signup.png</key>
 		<data>
 		8yfqCi3URML7QpA8NEw+5a8sfes=
@@ -282,7 +358,11 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/kernel_blob.bin</key>
 		<data>
+<<<<<<< Updated upstream
 		gVjN6yaud54flaqM/j850X7yqhs=
+=======
+		ayQJUjaeYhPCMQFHKyklOnrD73c=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -358,7 +438,11 @@
 		</data>
 		<key>Frameworks/FBLPromises.framework/FBLPromises</key>
 		<data>
+<<<<<<< Updated upstream
 		NQEXWMK1sIlOhayrOUQ7femL/3c=
+=======
+		RQ00yGUzGwTpyyG1Jjs7S/ivnjI=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/FBLPromises.framework/Info.plist</key>
 		<data>
@@ -386,7 +470,11 @@
 		</data>
 		<key>Frameworks/GTMSessionFetcher.framework/GTMSessionFetcher</key>
 		<data>
+<<<<<<< Updated upstream
 		VDXUQJ5d4ThajbelfMWiXiEMoUE=
+=======
+		tJh2VJmak6p+jW/YVzN9CRlEdxQ=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/GTMSessionFetcher.framework/Info.plist</key>
 		<data>
@@ -398,7 +486,11 @@
 		</data>
 		<key>Frameworks/GoogleUtilities.framework/GoogleUtilities</key>
 		<data>
+<<<<<<< Updated upstream
 		FbzGOVJ+7+WcwLW48g+ASY0CUjo=
+=======
+		lnu4KVkZirWWB15OUi5FNZf+MvA=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/GoogleUtilities.framework/Info.plist</key>
 		<data>
@@ -418,7 +510,11 @@
 		</data>
 		<key>Frameworks/geocoding.framework/geocoding</key>
 		<data>
+<<<<<<< Updated upstream
 		CSCKRyV2vyP9y7cAtFcXB3Buoa4=
+=======
+		hr0f+3ai8vMW7mzlrcJR1hVUgwA=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/geolocator.framework/Info.plist</key>
 		<data>
@@ -430,7 +526,11 @@
 		</data>
 		<key>Frameworks/geolocator.framework/geolocator</key>
 		<data>
+<<<<<<< Updated upstream
 		ks6RBWZbr/5izNEHruG0xSxt4sA=
+=======
+		0F3bGIL8Rmp4HEegZ1RsWcpy2V0=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/nanopb.framework/Info.plist</key>
 		<data>
@@ -442,7 +542,11 @@
 		</data>
 		<key>Frameworks/nanopb.framework/nanopb</key>
 		<data>
+<<<<<<< Updated upstream
 		DC3HJuzj0C8cb7Tl96EXB6Hy0QE=
+=======
+		Obmy0Y/82nicdirfjBF7/s6L9ck=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/permission.framework/Info.plist</key>
 		<data>
@@ -454,7 +558,11 @@
 		</data>
 		<key>Frameworks/permission.framework/permission</key>
 		<data>
+<<<<<<< Updated upstream
 		LACqVYpHEBWGpQUnZ6DnliM8MVA=
+=======
+		5vFsKO2HmfqmjTGDJdHgWVeCPN4=
+>>>>>>> Stashed changes
 		</data>
 		<key>Frameworks/url_launcher.framework/Info.plist</key>
 		<data>
@@ -466,7 +574,11 @@
 		</data>
 		<key>Frameworks/url_launcher.framework/url_launcher</key>
 		<data>
+<<<<<<< Updated upstream
 		JFQF0S7Q7TDg58XMqa4PbUaahpA=
+=======
+		7CBjl4jv5rZsM8+QAYAsCzfcA1k=
+>>>>>>> Stashed changes
 		</data>
 		<key>GoogleMaps.bundle/GMSCacheStorage.momd/Storage.mom</key>
 		<data>
@@ -1212,28 +1324,32 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			gJq/51xEB3DBPE4uRtCWA8IgU+nU4OInXcucHc+7LHU=
+			yrOkgKDXdTKrM6YAnBAdzYmEwYE2wGC981iVAO3DAyE=
 			</data>
 		</dict>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bbdyZTDXHT9Sy1l5PraRMTuqBHluEp4eBDwKWKG//S8=
+			JAuC+xhnk414npFigoJtwG8wQ8ATvBKUxGurJPQwSS0=
 			</data>
 		</dict>
 		<key>Assets.car</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			dkeezQFj3WLrsZNQFqPf+K0oyxyQa1gsdLCRt+kVbWg=
+			e4lYxqW/GbQ36T3oAjuG9AfPzkR9CUmvKKp8Dzide4s=
 			</data>
 		</dict>
 		<key>Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			tW/fxk/CyQGYArSDwS2tNp5dOIaOkP2/MB/nuR219A8=
+=======
+			FQOWxEsMcLY6ztdZGRgc3ZCEIHytzMUzgA764pwCF7g=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Base.lproj/LaunchScreen.storyboardc/Info.plist</key>
@@ -1247,14 +1363,22 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			SG5WnWvqVOURbnbdKfAK7k3D9CTvT3bR7RO5rz497ug=
+=======
+			g73Cl6utkYFrhvOSHY55lkWzu29Ku2Ehx0EEl0zfX1o=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			XPPJOBnv3UPMM+sBx6ZaMQqqB0tVaFkktT+vT8XDcUg=
+=======
+			NDMnZ6H8cI4U1RM2aLFzTkkIm2HMPjV2qGtnp7A9/OQ=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Base.lproj/Main.storyboardc/Info.plist</key>
@@ -1268,14 +1392,22 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			aoICeMQkPRRq+v1EiWxffEOIZAYFIRcwh8QifsPrLvw=
+=======
+			EyxH4fr7SHaY2ECa4uiESYJFkw+pgAqsXCPEFP3FaVs=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/App</key>
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			9othZa8l0WtiUjzrngBLJg6YMISDo45Wtw0O8l9iNec=
+=======
+			J3TcqLsRxlMr/xwi620WQDcBo9IT/qv8hhlrEPBDuks=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/Info.plist</key>
@@ -1289,14 +1421,18 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			yGwIUuQY5YpMDaLZ/F4HYhG8uocG0vU9bs2ColLiSWo=
+=======
+			Z/7vE1rRRGhBzRLOiyntr+nb9tN9DcHbE+VhaDEqaQ4=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ttUeViTr3Czolbbh2ZF8so8lkGgb7ai1MALDFiMowm4=
+			C/C1z8UI5QB0KteRxoDjV7zf00iFTlIUSyHopn1IfR8=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/FontManifest.json</key>
@@ -1310,7 +1446,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			N6mYspkyK07kjwHotxMBYF6YYynLSJrbFR9ghFgYKsE=
+=======
+			nbTKPLcAY/zOiDgQBMF6YRE6MMH6Aqscw+7UtxXofTo=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/assets/icons/account-filled.svg</key>
@@ -1558,6 +1698,97 @@
 			UFQPo6mUuFdRWOI2Xfq3YHTYCvh9/vOgbUMrI3QT7qk=
 			</data>
 		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/1024.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Q9RkQKIMfA05VzI7N60Bnm0f+H+xw9lO843FPwyePQI=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/120.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			yrOkgKDXdTKrM6YAnBAdzYmEwYE2wGC981iVAO3DAyE=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/152.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			JAuC+xhnk414npFigoJtwG8wQ8ATvBKUxGurJPQwSS0=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/167.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			9ydMkzqli/0U8yfazpUnACtSubQD5u9mzH/DYIlDH+o=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/180.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Q9RkQKIMfA05VzI7N60Bnm0f+H+xw9lO843FPwyePQI=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/20.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			VGfuiyGWDeEf2Oxyfug3fAUT+WPEXj3TEQbrPrFCH20=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/29.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			P4WwJNkFDRLOMLGJJzR9Lu82BePsIUL3c0Z+saML+GQ=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/40.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7U5cVl6wjw/Lhw7QHS8QsT0AhT0xQjqOoohJtTNmgZA=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/58.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			FQFUGgRpd+1+L1CwGuYSayAotCnr4C10A1B9wBF8ly4=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/60.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			NdhTRU8jWwOVqfnsD20zfcnoZaVOVsR7r84xeijpc4w=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/76.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			0beiQxc/c7Mv83/7EXRsAAXVBzqm6QTmstmR/UX4UKA=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/80.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			mOpd5z7xWpCg28a67RcHWhjeg+gjoCCESZMcfHPYnj8=
+			</data>
+		</dict>
+		<key>Frameworks/App.framework/flutter_assets/assets/images/87.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			nAK7zIzfpKD5IK+fsuOHg3oEAYM4fY5hUhDbYnAI7pk=
+			</data>
+		</dict>
 		<key>Frameworks/App.framework/flutter_assets/assets/images/chat.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1628,13 +1859,6 @@
 			iPMjRPHpFMphyvNVEgQEv8EzVnqbIWe+4bzXy39qzOk=
 			</data>
 		</dict>
-		<key>Frameworks/App.framework/flutter_assets/assets/images/sharlymeter.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			GUgH/yYJlyrb/QTdOPOEczOo/4h9K+bALhYrNs9W+a8=
-			</data>
-		</dict>
 		<key>Frameworks/App.framework/flutter_assets/assets/images/signup.png</key>
 		<dict>
 			<key>hash2</key>
@@ -1674,7 +1898,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			xJPbtPa0AI36aHZCHbXbAspL0nf7zEp9cTO9FGBwQaw=
+=======
+			HDnT89QflGuArIinJ/lkRn+nGQR+mUbOPLAsqWTf5J4=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
@@ -1807,7 +2035,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			q6e2ZKU8VJXK5laVSoFKOiUu/Sg9juo/r+jSoj3S4DI=
+=======
+			7eHOI6nZx/xNBjiY0pvcwyKS1WmTMM2sFd/pUKSXaqM=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/FBLPromises.framework/Info.plist</key>
@@ -1856,7 +2088,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			jdIhutupfHGcDI/6GALIYOjDcqo7M2jb0TimdNH4Bv0=
+=======
+			HOUdENWCntfNeXW1piCHPQAYdaeoymIYst9EfG5Gj7g=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/GTMSessionFetcher.framework/Info.plist</key>
@@ -1877,7 +2113,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			MNP4qMFy775jeqh/6/Se05JPCP4jT2QHbRly0+ahIuI=
+=======
+			W5cg7Hm2KxpT0aG3PsHZHl+T5KnlPVFJ+A58hNrSYVc=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/GoogleUtilities.framework/Info.plist</key>
@@ -1912,7 +2152,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			b4YizlQ7d3QKiRYbcc3U3waFblwNYwc3nbDYku/BjLs=
+=======
+			N7DhUXG6IAlnbyhhTOXyLL7vSYPwf07F281DWNDWF1M=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/geolocator.framework/Info.plist</key>
@@ -1933,7 +2177,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			O4tyx1XNAnKji+iY3vndudBAg1zDg0FBPJuurSDpdNE=
+=======
+			89bac64I4SmTdSlojdd1mP9BTR+AEi+hHzCFHqQeIYc=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/nanopb.framework/Info.plist</key>
@@ -1954,7 +2202,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			MLDzmEo7Aq6lVyijebGWMtNNcotczNqQ6T5deZC/9xQ=
+=======
+			kIDKega9E9j74zYP+xNp7TXQdk0Ly1ZHSUSLYN8183o=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/permission.framework/Info.plist</key>
@@ -1975,7 +2227,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			kw4+XHDF7Lc1uiC36oLLPdfqIJpx7B0RCqSuip3hw54=
+=======
+			AHM0FNOjDomkvYeVHUy/gEOhfHaFfIp/iNm/B1tPguc=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>Frameworks/url_launcher.framework/Info.plist</key>
@@ -1996,7 +2252,11 @@
 		<dict>
 			<key>hash2</key>
 			<data>
+<<<<<<< Updated upstream
 			BDQxTYi3HE2HLmGVJMCNQENYx70ENPM0soAOo3+/8uE=
+=======
+			NMdNtVzzhjtQC/cwXeBx3fpTuJi70ROv6+YGOxJk1zY=
+>>>>>>> Stashed changes
 			</data>
 		</dict>
 		<key>GoogleMaps.bundle/GMSCacheStorage.momd/Storage.mom</key>

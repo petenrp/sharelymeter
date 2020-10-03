@@ -74,6 +74,8 @@ class _BodyState extends State<Body> {
                       setState(() {
                         error = 'please provide a valid email';
                       }); 
+                    } else {
+                      Navigator.pop(context);
                     }
                   } 
                 }
