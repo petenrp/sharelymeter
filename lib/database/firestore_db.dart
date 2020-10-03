@@ -1,5 +1,5 @@
 import 'package:firebase_helpers/firebase_helpers.dart';
-import '../models/route.dart';
+import 'package:sharelymeter/models/route.dart';
 
 DatabaseService<RouteModel> routeDBS = DatabaseService<RouteModel>(
     "MatchingRoute",

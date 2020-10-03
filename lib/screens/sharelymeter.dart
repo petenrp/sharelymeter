@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharelymeter/constants.dart';
+import 'package:sharelymeter/shared/constants.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:sharelymeter/screens/account/account_screen.dart';
 import 'package:sharelymeter/screens/activity/activity_screen.dart';
@@ -21,8 +21,6 @@ class _SharelyMeterState extends State<SharelyMeter> {
     NotificationScreen(),
     AccountScreen(),
   ];
-
-  
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharelymeter/constants.dart';
+import 'package:sharelymeter/shared/constants.dart';
 import 'package:sharelymeter/screens/login/login_screen.dart';
 import 'package:sharelymeter/screens/signup/signup_screen.dart';
 import 'package:sharelymeter/screens/welcome/components/background.dart';

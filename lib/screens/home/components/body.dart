@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharelymeter/constants.dart';
+import 'package:sharelymeter/shared/constants.dart';
 import 'package:sharelymeter/screens/home/components/header_with_searchbox.dart';
 //import 'package:sharelymeter/screens/home/components/title_with_more_button.dart';
 

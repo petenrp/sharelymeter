@@ -22,6 +22,9 @@ class _BodyState extends State<Body> {
 
   String email = '';
   String password = '';
+  String firstname = '';
+  String lastname = '';
+  String phonenumber = '';
   //String confirmpassword = '';
   String error = '';
 
@@ -65,15 +68,47 @@ class _BodyState extends State<Body> {
                 },
                 hinttext: "Password",
               ),
+              RoundedInputField(
+                hintText: "First Name",
+                icon: Icons.person,
+                validator: (value) => value.isEmpty ? 'Enter your first name': null,
+                onChanged: (value) {
+                  setState(() {
+                    firstname = value;
+                  });
+                },
+              ),
+              RoundedInputField(
+                hintText: "Last Name",
+                icon: Icons.person,
+                validator: (value) => value.isEmpty ? 'Enter your last name': null,
+                onChanged: (value) {
+                  setState(() {
+                    lastname = value;
+                  });
+                },
+              ),
+              RoundedInputField(
+                hintText: "Phone Number",
+                icon: Icons.person,
+                validator: (value) => value.isEmpty ? 'Enter your phone number': null,
+                onChanged: (value) {
+                  setState(() {
+                    phonenumber = value;
+                  });
+                },
+              ),
               RoundedButton(
                 text: "SIGNUP",
                 press: () async {
                   if (_formkey.currentState.validate()) {
-                    dynamic result = await _auth.registerWithEmailAndPassword(email, password);
+                    dynamic result = await _auth.registerWithEmailAndPassword(email, password, firstname, lastname, phonenumber);
                     if(result == null) {
                       setState(() {
                         error = 'please provide a valid email';
                       }); 
+                    } else {
+                      Navigator.pop(context);
                     }
                   } 
                 }

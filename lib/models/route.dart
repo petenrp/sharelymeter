@@ -7,9 +7,15 @@ class RouteModel extends DatabaseItem {
   final double startLng;
   final double destLat;
   final double destLng;
+  final double totalDistance;
 
   RouteModel(
-      {this.userID, this.startLat, this.startLng, this.destLat, this.destLng})
+      {this.userID,
+      this.startLat,
+      this.startLng,
+      this.destLat,
+      this.destLng,
+      this.totalDistance})
       : super(userID);
 
   factory RouteModel.fromMap(Map data) {
@@ -19,6 +25,7 @@ class RouteModel extends DatabaseItem {
       startLng: data['startLng'],
       destLat: data['desLat'],
       destLng: data['desLng'],
+      totalDistance: data['totalDistance'],
     );
   }
 
@@ -30,6 +37,7 @@ class RouteModel extends DatabaseItem {
       startLng: data['startLng'],
       destLat: data['desLat'],
       destLng: data['desLng'],
+      totalDistance: data['totalDistance'],
     );
   }
 
@@ -41,6 +49,7 @@ class RouteModel extends DatabaseItem {
       "startLng": startLng,
       "destLat": destLat,
       "destLng": destLng,
+      "totalDistance": totalDistance,
     };
   }
 }
