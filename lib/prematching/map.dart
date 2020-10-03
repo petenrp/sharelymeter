@@ -58,6 +58,7 @@ class _MapViewState extends State<MapView> {
   double startLng = 0;
   double destLat = 0;
   double destLng = 0;
+  double totalDistance = 0;
 
   Set<Marker> markers = {};
 
@@ -260,7 +261,7 @@ class _MapViewState extends State<MapView> {
 
         await _createPolylines(startCoordinates, destinationCoordinates);
 
-        double totalDistance = 0.0;
+        totalDistance = 0.0;
 
         // Calculating the total distance by adding the distance
         // between small segments
@@ -583,9 +584,10 @@ class _MapViewState extends State<MapView> {
                               startLng: startLng,
                               destLat: destLat,
                               destLng: destLng,
+                              totalDistance: totalDistance,
                             ),
                           );
-                          print('test sent to database');
+                          print('Distance: $totalDistance');
                           // print('START COORDINATES: $startCoordinates');
                           print('START COORDINATES: $startLat, $startLng');
                           // print('DESTINATION COORDINATES: $destinationCoordinates');
