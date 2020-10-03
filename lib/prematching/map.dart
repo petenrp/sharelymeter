@@ -4,6 +4,11 @@ import 'package:sharelymeter/googlemapapi.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; //firebase
+
+import '../models/route.dart';
+import '../database/firestore_db.dart';
+import 'package:firebase_helpers/firebase_helpers.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
@@ -30,6 +35,10 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+  //test
+  final RouteModel route;
+  _MapViewState({this.route});
+
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   GoogleMapController mapController;
 
@@ -44,6 +53,11 @@ class _MapViewState extends State<MapView> {
   String _startAddress = '';
   String _destinationAddress = '';
   String _placeDistance = '';
+
+  double startLat = 0;
+  double startLng = 0;
+  double destLat = 0;
+  double destLng = 0;
 
   Set<Marker> markers = {};
 
@@ -190,12 +204,19 @@ class _MapViewState extends State<MapView> {
           icon: BitmapDescriptor.defaultMarker,
         );
 
+        startLat = startCoordinates.latitude;
+        startLng = startCoordinates.longitude;
+        destLat = destinationCoordinates.latitude;
+        destLng = destinationCoordinates.longitude;
+
         // Adding the markers to the list
         markers.add(startMarker);
         markers.add(destinationMarker);
 
-        print('START COORDINATES: $startCoordinates');
-        print('DESTINATION COORDINATES: $destinationCoordinates');
+        // print('START COORDINATES: $startCoordinates');
+        print('START COORDINATES: $startLat, $startLng');
+        // print('DESTINATION COORDINATES: $destinationCoordinates');
+        print('DESTINATION COORDINATES: $destLat, $destLng');
 
         Position _northeastCoordinates;
         Position _southwestCoordinates;
@@ -531,6 +552,45 @@ class _MapViewState extends State<MapView> {
                             ),
                           );
                         },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // confirm
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5.0, bottom: 5.0),
+                  child: ClipRRect(
+                    child: Material(
+                      color: Colors.red[900], // button color
+                      child: InkWell(
+                        splashColor: Colors.red, // inkwell color
+                        child: SizedBox(
+                          width: 70,
+                          height: 50,
+                          child: Icon(Icons.done_all),
+                        ),
+                        //เมื่อแตะปุ่มจะส่งค่าไปแมท
+                        onTap: () async {
+                          await routeDBS.createItem(
+                            RouteModel(
+                              userID: "ddddd",
+                              startLat: startLat,
+                              startLng: startLng,
+                              destLat: destLat,
+                              destLng: destLng,
+                            ),
+                          );
+                          print('test sent to database');
+                          // print('START COORDINATES: $startCoordinates');
+                          print('START COORDINATES: $startLat, $startLng');
+                          // print('DESTINATION COORDINATES: $destinationCoordinates');
+                          print('DESTINATION COORDINATES: $destLat, $destLng');
+                        }, //ส่งไปแมทใน firebase
                       ),
                     ),
                   ),
