@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/constants.dart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import 'package:sharelymeter/screens/welcome/welcomescreen.dart';
 import 'package:sharelymeter/screens/sharelymeter.dart';
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 import 'package:sharelymeter/screens/wrapper.dart';
 import 'package:sharelymeter/service/auth.dart';
 import 'package:provider/provider.dart';
@@ -83,21 +76,9 @@ class _MyAppState extends State<MyApp> {
           appBarTheme: AppBarTheme(color: kPrimaryColor, elevation: 0),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        //home: Wrapper(),
-        home: SharelyMeter(),
+        home: Wrapper(),
+        //home: SharelyMeter(),
       ),
     );
   }
 }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-
-
-
->>>>>>> Stashed changes
-=======
-
-
-
->>>>>>> Stashed changes
