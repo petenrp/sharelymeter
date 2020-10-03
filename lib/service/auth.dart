@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sharelymeter/database/database.dart';
 import 'package:sharelymeter/models/user.dart';
 
 class AuthService {   
@@ -29,11 +30,21 @@ class AuthService {
   }
 
   //signup
-  Future registerWithEmailAndPassword(String email, String password) async {
+  Future registerWithEmailAndPassword(String email, String password, String firstname, String lastname, String phonenumber) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email, 
+        password: password
+      );
       User user = result.user;
+
+      //create a new document for the user with uid
+      await DatabaseService(uid: user.uid).updateUserData(
+        firstname,
+        lastname,
+        phonenumber,
+      );
+
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());

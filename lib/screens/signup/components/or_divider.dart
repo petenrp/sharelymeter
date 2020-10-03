@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharelymeter/constants.dart';
+import 'package:sharelymeter/shared/constants.dart';
 
 class OrDivider extends StatelessWidget {
   @override
