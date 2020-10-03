@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharelymeter/constants.dart';
+import 'package:sharelymeter/shared/constants.dart';
 import 'package:sharelymeter/screens/welcome/welcomescreen.dart';
 import 'package:sharelymeter/screens/sharelymeter.dart';
 import 'package:sharelymeter/screens/wrapper.dart';
@@ -84,8 +84,8 @@ class _MyAppState extends State<MyApp> {
           appBarTheme: AppBarTheme(color: kPrimaryColor, elevation: 0),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        //home: Wrapper(),
-        home: SharelyMeter(),
+        home: Wrapper(),
+        //home: SharelyMeter(),
       ),
     );
   }
