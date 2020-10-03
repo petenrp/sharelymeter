@@ -74,8 +74,6 @@ class _BodyState extends State<Body> {
                       setState(() {
                         error = 'could not login with thoes credentials';
                       }); 
-                    } else {
-                      Navigator.pop(context);
                     }
                   } 
                 }

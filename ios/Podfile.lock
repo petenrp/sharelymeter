@@ -15,6 +15,9 @@ PODS:
   - Firebase/Firestore (6.26.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 1.15.0)
+  - Firebase/Storage (6.26.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 3.6.1)
   - firebase_auth (0.18.0-1):
     - Firebase/Auth (~> 6.26.0)
     - Firebase/CoreOnly (~> 6.26.0)
@@ -25,6 +28,11 @@ PODS:
     - Flutter
   - firebase_dynamic_links (0.1.0):
     - Firebase/DynamicLinks
+    - Flutter
+  - firebase_storage (4.0.1):
+    - Firebase/CoreOnly (~> 6.26.0)
+    - Firebase/Storage (~> 6.26.0)
+    - firebase_core
     - Flutter
   - FirebaseAnalyticsInterop (1.5.0)
   - FirebaseAuth (6.5.3):
@@ -49,6 +57,10 @@ PODS:
     - FirebaseAnalyticsInterop (~> 1.3)
     - FirebaseCore (~> 6.2)
   - FirebaseFirestore (1.15.0)
+  - FirebaseStorage (3.6.1):
+    - FirebaseAuthInterop (~> 1.1)
+    - FirebaseCore (~> 6.6)
+    - GTMSessionFetcher/Core (~> 1.1)
   - Flutter (1.0.0)
   - geocoding (1.0.3):
     - Flutter
@@ -98,6 +110,7 @@ DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_dynamic_links (from `.symlinks/plugins/firebase_dynamic_links/ios`)
+  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `6.26.0`)
   - Flutter (from `Flutter`)
   - geocoding (from `.symlinks/plugins/geocoding/ios`)
@@ -117,6 +130,7 @@ SPEC REPOS:
     - FirebaseCoreDiagnostics
     - FirebaseCoreDiagnosticsInterop
     - FirebaseDynamicLinks
+    - FirebaseStorage
     - GoogleDataTransport
     - GoogleMaps
     - GoogleUtilities
@@ -133,6 +147,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   firebase_dynamic_links:
     :path: ".symlinks/plugins/firebase_dynamic_links/ios"
+  firebase_storage:
+    :path: ".symlinks/plugins/firebase_storage/ios"
   FirebaseFirestore:
     :git: https://github.com/invertase/firestore-ios-sdk-frameworks.git
     :tag: 6.26.0
@@ -162,6 +178,7 @@ SPEC CHECKSUMS:
   firebase_auth: c42c06a212439824b5da53437da905931e8e6b9a
   firebase_core: 3134fe79d257d430f163b558caf52a10a87efe8a
   firebase_dynamic_links: 6aa278fc5e6e8cca17d5aa4c7aa46283f2b94749
+  firebase_storage: 419f66c641d8bbd8306abeb7d08bd6ece87d8b5a
   FirebaseAnalyticsInterop: 3f86269c38ae41f47afeb43ebf32a001f58fcdae
   FirebaseAuth: 7047aec89c0b17ecd924a550c853f0c27ac6015e
   FirebaseAuthInterop: a0f37ae05833af156e72028f648d313f7e7592e9
@@ -170,6 +187,7 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnosticsInterop: 296e2c5f5314500a850ad0b83e9e7c10b011a850
   FirebaseDynamicLinks: 417dc6dbb6013233c77558290d73296f429656a6
   FirebaseFirestore: 2cf6944bc538e57c94d8332bae501178edb70727
+  FirebaseStorage: f4f39ae834a7145963b913f54e2f24a9db1d8fac
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   geocoding: ba2dc798e5d24ea68a3ff47cccee2590b7f06345
   geolocator: f7622e0e7e2a24718285b73916d60c4a54b9f5b6
@@ -186,4 +204,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 739040ee0a0ead1074cdbec69f7f1b13ccb79b44
 
-COCOAPODS: 1.10.0.rc.1
+COCOAPODS: 1.9.3
