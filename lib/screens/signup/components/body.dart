@@ -18,7 +18,7 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
 
   final AuthService _auth = AuthService();
-   final _formkey = GlobalKey<FormState>();
+  final _formkey = GlobalKey<FormState>();
 
   String email = '';
   String password = '';

@@ -43,6 +43,7 @@ class AuthService {
         firstname,
         lastname,
         phonenumber,
+        email,
       );
 
       return _userFromFirebaseUser(user);
