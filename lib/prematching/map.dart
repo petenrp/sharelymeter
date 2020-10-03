@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 // Stores the Google Maps API Key
 import 'package:sharelymeter/googlemapapi.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; //firebase
-
+import 'dart:async';
 import '../models/route.dart';
 import '../database/firestore_db.dart';
 import 'package:firebase_helpers/firebase_helpers.dart';
+import 'package:sharelymeter/shared/constants.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
@@ -444,6 +446,7 @@ class _MapViewState extends State<MapView> {
                               locationCallback: (String value) {
                                 setState(() {
                                   _startAddress = value;
+                                  print(_startAddress);
                                 });
                               }),
                           SizedBox(height: 5),
@@ -456,6 +459,7 @@ class _MapViewState extends State<MapView> {
                               locationCallback: (String value) {
                                 setState(() {
                                   _destinationAddress = value;
+                                  print(_destinationAddress);
                                 });
                               }),
                           SizedBox(height: 5),
@@ -469,7 +473,7 @@ class _MapViewState extends State<MapView> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          SizedBox(height: 0),
                           RaisedButton(
                             onPressed: (_startAddress != '' &&
                                     _destinationAddress != '')
@@ -559,7 +563,7 @@ class _MapViewState extends State<MapView> {
                 ),
               ),
             ),
-            // confirm
+            // Pre-confirmation
             SafeArea(
               child: Align(
                 alignment: Alignment.bottomRight,
@@ -575,24 +579,47 @@ class _MapViewState extends State<MapView> {
                           height: 50,
                           child: Icon(Icons.done_all),
                         ),
-                        //เมื่อแตะปุ่มจะส่งค่าไปแมท
-                        onTap: () async {
-                          await routeDBS.createItem(
-                            RouteModel(
-                              userID: "ddddd",
-                              startLat: startLat,
-                              startLng: startLng,
-                              destLat: destLat,
-                              destLng: destLng,
-                              totalDistance: totalDistance,
-                            ),
-                          );
-                          print('Distance: $totalDistance');
-                          // print('START COORDINATES: $startCoordinates');
-                          print('START COORDINATES: $startLat, $startLng');
-                          // print('DESTINATION COORDINATES: $destinationCoordinates');
-                          print('DESTINATION COORDINATES: $destLat, $destLng');
-                        }, //ส่งไปแมทใน firebase
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              child: new AlertDialog(
+                                title: new Text("Comfirm"),
+                                content: new Text(
+                                    "From $_startAddress to $_destinationAddress"),
+                                actions: <Widget>[
+                                  new FlatButton(
+                                    child: new Text("Close"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  new FlatButton(
+                                    child: new Text("OK"),
+                                    //เมื่อแตะปุ่มจะส่งค่าไปแมท
+                                    onPressed: () async {
+                                      await routeDBS.createItem(
+                                        RouteModel(
+                                          userID: "ddddd",
+                                          startLat: startLat,
+                                          startLng: startLng,
+                                          destLat: destLat,
+                                          destLng: destLng,
+                                          totalDistance: totalDistance,
+                                        ),
+                                      );
+                                      Navigator.of(context).pop();
+                                      print('Distance: $totalDistance');
+                                      // print('START COORDINATES: $startCoordinates');
+                                      print(
+                                          'START COORDINATES: $startLat, $startLng');
+                                      // print('DESTINATION COORDINATES: $destinationCoordinates');
+                                      print(
+                                          'DESTINATION COORDINATES: $destLat, $destLng');
+                                    }, //ส่งไปแมทใน firebase
+                                  ),
+                                ],
+                              ));
+                        },
                       ),
                     ),
                   ),
@@ -605,3 +632,22 @@ class _MapViewState extends State<MapView> {
     );
   }
 }
+
+//เมื่อแตะปุ่มจะส่งค่าไปแมท
+// onTap: () async {
+//   await routeDBS.createItem(
+//     RouteModel(
+//       userID: "ddddd",
+//       startLat: startLat,
+//       startLng: startLng,
+//       destLat: destLat,
+//       destLng: destLng,
+//       totalDistance: totalDistance,
+//     ),
+//   );
+//   print('Distance: $totalDistance');
+//   // print('START COORDINATES: $startCoordinates');
+//   print('START COORDINATES: $startLat, $startLng');
+//   // print('DESTINATION COORDINATES: $destinationCoordinates');
+//   print('DESTINATION COORDINATES: $destLat, $destLng');
+// }, //ส่งไปแมทใน firebase
