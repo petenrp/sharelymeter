@@ -8,6 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sharelymeter/models/user.dart';
 
+import './prematching/map.dart';
+import './screens/add/component/confirm_screen.dart';
+
 // import 'package:sharelymeter/prematching/map.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:sharelymeter/googlemapapi.dart'; // Stores the Google Maps API Key
@@ -84,8 +87,14 @@ class _MyAppState extends State<MyApp> {
           appBarTheme: AppBarTheme(color: kPrimaryColor, elevation: 0),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: Wrapper(),
-        //home: SharelyMeter(),
+        // home: Wrapper(),
+        home: SharelyMeter(),
+        // home: ConfirmScreen(), //confirmation page
+        routes: {
+          //'/': (ctx) => SharelyMeter(),
+          MapView.route: (ctx) => MapView(),
+          // ConfirmScreen.route: (ctx) => ConfirmScreen(),
+        },
       ),
     );
   }
