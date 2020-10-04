@@ -21,7 +21,7 @@ class _WrapperState extends State<Wrapper> {
     if (user == null){
       return WelcomeScreen();
     } else {
-      print("Sharely Meter");
+      print("Loged-in");
       return SharelyMeter();
     }
   }

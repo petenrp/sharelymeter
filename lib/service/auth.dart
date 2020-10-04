@@ -14,22 +14,18 @@ class AuthService {
     //.map((User user) => _userFromFirebaseUser(user));
   }
 
-  //signin email password
-  Future<CustomUser> signInWithEmailAndPassword(String email, String password) async {
-    try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password
-      );
-      User user = result.user;
-      return _userFromFirebaseUser(user);
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+  //get UID
+  Future<String> getCurrentUID() async {
+    return await _auth.currentUser.uid;
   }
 
-  //signup
+  //get current user
+  Future getCurrentUser() async {
+    return await _auth.currentUser;
+  }
+
+
+  //signup with Email and password
   Future registerWithEmailAndPassword(String email, String password, String firstname, String lastname, String phonenumber) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
@@ -46,6 +42,21 @@ class AuthService {
         email,
       );
 
+      return _userFromFirebaseUser(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  //signin with Email and password
+  Future<CustomUser> signInWithEmailAndPassword(String email, String password) async {
+    try {
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password
+      );
+      User user = result.user;
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());

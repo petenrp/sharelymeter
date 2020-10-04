@@ -20,21 +20,8 @@ class DatabaseService{
     );
   }
 
-  //UserInfo list from snapshot
-  List<UserInformation> _userInfoListFromSnapShot(QuerySnapshot snapshot){
-    return snapshot.docs.map((doc){
-      return UserInformation(
-        firstname: doc.data()['firstname'] ?? '',
-        lastname: doc.data()['lastname'] ?? '',
-        phonenumber: doc.data()['phonenumber'] ?? '',
-        email: doc.data()['email'] ?? '',
-      );
-    }).toList();
-  }
-  
-  //Get userInfo stream
-  Stream<List<UserInformation>> get userInfo {
-    return userInfoCollection.snapshots()
-    .map(_userInfoListFromSnapShot);
+  //get userInfo stream
+  Stream<QuerySnapshot> get userInfo {
+    return userInfoCollection.snapshots();
   }
 }
