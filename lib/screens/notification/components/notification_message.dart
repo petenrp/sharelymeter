@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/shared/constants.dart';
-
 class NotificationMessage extends StatelessWidget {
   NotificationMessage({
     Key key,
@@ -11,7 +10,7 @@ class NotificationMessage extends StatelessWidget {
     this.press,
   }) : super(key: key);
   final String startPoint, destinationPoint, dateAndTime;
-    final int status;
+  final int status;
   final Function press;
   final STATUS_MESSAGES = {
     0: " has been canceled",

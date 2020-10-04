@@ -19,9 +19,4 @@ class DatabaseService{
       }
     );
   }
-
-  //get userInfo stream
-  Stream<QuerySnapshot> get userInfo {
-    return userInfoCollection.snapshots();
-  }
 }

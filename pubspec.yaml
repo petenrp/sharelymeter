@@ -40,6 +40,7 @@ dependencies:
   cloud_firestore: ^0.14.0+2
   firebase_dynamic_links: ^0.5.1
   flutter_spinkit: "^4.1.2"
+  timeline_tile: ^1.0.0
 
   ###
   firebase_helpers: ^0.2.1
