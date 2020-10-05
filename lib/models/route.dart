@@ -24,7 +24,7 @@ class RouteModel extends DatabaseItem {
 
   factory RouteModel.fromMap(Map data) {
     return RouteModel(
-      //userID: data,
+      userID: data['userID'],
       startLat: data['startLat'],
       startLng: data['startLng'],
       destLat: data['desLat'],

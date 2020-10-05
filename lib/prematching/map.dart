@@ -555,7 +555,7 @@ class _MapViewState extends State<MapView> {
                 title: Text("Confirmation"),
                 content: Container(
                   //color: Colors.amber,
-                  height: 150,
+                  height: 120,
                   child: Column(
                     children: [
                       Container(
@@ -632,7 +632,7 @@ class _MapViewState extends State<MapView> {
 
                           await routeDBS.createItem(
                             RouteModel(
-                              userID: "Panusron",
+                              userID: '',
                               startLat: startLat,
                               startLng: startLng,
                               destLat: destLat,
