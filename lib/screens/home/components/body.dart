@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sharelymeter/screens/home/components/schedule_ride.dart';
 import 'package:sharelymeter/shared/constants.dart';
 import 'package:sharelymeter/screens/home/components/header_with_searchbox.dart';
 //import 'package:sharelymeter/screens/home/components/title_with_more_button.dart';
@@ -23,54 +24,14 @@ class Body extends StatelessWidget {
                 children: <Widget>[
                   Wrap(
                     children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.all(kDefaultPadding),
-                        decoration: BoxDecoration(
-                          color: kTertiaryColor,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              offset: Offset(0, 17),
-                              blurRadius: 24,
-                              spreadRadius: -14,
-                              color: kLightTertiaryColor,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              margin: EdgeInsets.only(
-                                bottom: kDefaultPadding / 4,
-                              ),
-                              child: Text(
-                                'Schedule ride : ', 
-                                style: TextStyle(
-                                  fontSize: 18, 
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: size.height * 0.15,
-                              width: size.width - (4 * kDefaultPadding),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: Offset(0, 17),
-                                    blurRadius: 24,
-                                    spreadRadius: -14,
-                                    color: kShadowColor,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                      ScheduleRide(
+                        size: size,
+                        dateAndTime: "18-12-2020, 18:00",
+                        startPoint: "King's Mongkutt University of Technology Thonburi",
+                        destinationPoint: "King's Mongkutt University of Technology Thonburi",
+                        partnerFirstname: "Naruhpak",
+                        partnerLastname: " Rotchanakanokchok",
+                        press: () {},
                       ),
                     ],
                   ),

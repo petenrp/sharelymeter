@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/components/already_have_an_account_check.dart';
 import 'package:sharelymeter/components/rounded_button.dart';

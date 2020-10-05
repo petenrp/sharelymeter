@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sharelymeter/shared/constants.dart';
-import 'package:sharelymeter/screens/welcome/welcomescreen.dart';
 import 'package:sharelymeter/screens/sharelymeter.dart';
 import 'package:sharelymeter/screens/wrapper.dart';
 import 'package:sharelymeter/service/auth.dart';
