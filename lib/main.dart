@@ -86,8 +86,8 @@ class _MyAppState extends State<MyApp> {
           appBarTheme: AppBarTheme(color: kPrimaryColor, elevation: 0),
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        // home: Wrapper(),
-        home: SharelyMeter(),
+        home: Wrapper(),
+        // home: SharelyMeter(),
         // home: ConfirmScreen(), //confirmation page
         routes: {
           //'/': (ctx) => SharelyMeter(),
