@@ -317,7 +317,7 @@ class _MapMatchingState extends State<MapMatching> {
   _createPolylines(Position start, Position destination) async {
     polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      Secrets.API_KEY, // Google Maps API Key
+      GmapAPI.API_KEY, // Google Maps API Key
       PointLatLng(start.latitude, start.longitude),
       PointLatLng(destination.latitude, destination.longitude),
       travelMode: TravelMode.transit,
