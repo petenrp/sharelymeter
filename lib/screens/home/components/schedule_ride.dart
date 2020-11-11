@@ -10,19 +10,23 @@ class ScheduleRide extends StatelessWidget {
     this.startPoint,
     this.destinationPoint,
     this.partnerFirstname,
-    this.partnerLastname, 
+    this.partnerLastname,
     this.press,
   }) : super(key: key);
 
   final Size size;
-  final String startPoint, destinationPoint, dateAndTime, partnerFirstname, partnerLastname;
+  final String startPoint,
+      destinationPoint,
+      dateAndTime,
+      partnerFirstname,
+      partnerLastname;
   final Function press;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: press,
-        child: Container(
+      onTap: press,
+      child: Container(
         padding: EdgeInsets.all(kDefaultPadding),
         decoration: BoxDecoration(
           color: kTertiaryColor,
@@ -44,9 +48,9 @@ class ScheduleRide extends StatelessWidget {
                 bottom: kDefaultPadding / 4,
               ),
               child: Text(
-                'Schedule ride : ', 
+                'Schedule ride : ',
                 style: TextStyle(
-                  fontSize: 18, 
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -54,7 +58,7 @@ class ScheduleRide extends StatelessWidget {
             ),
             //white area
             Container(
-              height: size.height * 0.25,
+              height: size.height * 0.3,
               width: size.width - (4 * kDefaultPadding),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -89,24 +93,21 @@ class ScheduleRide extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(
-                            left: kDefaultPadding/2,
-                          ),
-                          child: Text(
-                            dateAndTime,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500
+                            margin: EdgeInsets.only(
+                              left: kDefaultPadding / 2,
                             ),
-                          )
-                        )
+                            child: Text(
+                              dateAndTime,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                            ))
                       ],
                     ),
                   ),
                   //start point
                   Container(
                     margin: EdgeInsets.only(
-                      top: kDefaultPadding/4,
+                      top: kDefaultPadding / 4,
                       left: kDefaultPadding + 5,
                     ),
                     child: Row(
@@ -120,25 +121,24 @@ class ScheduleRide extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          width: 270,
-                          margin: EdgeInsets.only(
-                            left: kDefaultPadding * 0.75,
-                          ),
-                          child: Text(
-                            startPoint,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                            width: 270,
+                            margin: EdgeInsets.only(
+                              left: kDefaultPadding * 0.75,
                             ),
-                          )
-                        )
+                            child: Text(
+                              startPoint,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ))
                       ],
                     ),
                   ),
                   //line
                   Container(
                     margin: EdgeInsets.only(
-                      top: kDefaultPadding/4,
+                      top: kDefaultPadding / 4,
                       left: kDefaultPadding + 12.5,
                     ),
                     height: 30,
@@ -148,7 +148,7 @@ class ScheduleRide extends StatelessWidget {
                   //destination point
                   Container(
                     margin: EdgeInsets.only(
-                      top: kDefaultPadding/4,
+                      top: kDefaultPadding / 4,
                       left: kDefaultPadding,
                     ),
                     child: Row(
@@ -162,53 +162,49 @@ class ScheduleRide extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          width: 265,
-                          margin: EdgeInsets.only(
-                            left: kDefaultPadding * 0.75,
-                          ),
-                          child: Text(
-                            destinationPoint,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                            width: 265,
+                            margin: EdgeInsets.only(
+                              left: kDefaultPadding * 0.75,
                             ),
-                          )
-                        )
-                        
+                            child: Text(
+                              destinationPoint,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ))
                       ],
                     ),
                   ),
                   //partner
                   Container(
                     margin: EdgeInsets.only(
-                      top: kDefaultPadding/4,
+                      top: kDefaultPadding / 4,
                       left: kDefaultPadding,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: Icon(
-                            FlutterIcons.supervisor_account_mdi,
-                            size: 30,
-                            color: kLightGreyColor,
-                          ),
-                        ),
-                        Container(
-                          width: 265,
-                          margin: EdgeInsets.only(
-                            left: kDefaultPadding * 0.75,
-                          ),
-                          child: Text(
-                            partnerFirstname + " " + partnerLastname,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Icon(
+                              FlutterIcons.supervisor_account_mdi,
+                              size: 30,
+                              color: kLightGreyColor,
                             ),
-                          )
-                        )
-                      ]
-                    ),
+                          ),
+                          Container(
+                              width: 265,
+                              margin: EdgeInsets.only(
+                                left: kDefaultPadding * 0.75,
+                              ),
+                              child: Text(
+                                partnerFirstname + " " + partnerLastname,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ))
+                        ]),
                   ),
                 ],
               ),

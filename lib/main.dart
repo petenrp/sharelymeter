@@ -7,6 +7,16 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sharelymeter/models/user.dart';
 
+import './prematching/map.dart';
+import './screens/add/component/confirm_screen.dart';
+
+// import 'package:sharelymeter/prematching/map.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:sharelymeter/googlemapapi.dart'; // Stores the Google Maps API Key
+// import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+// import 'package:geolocator/geolocator.dart';
+// import 'dart:math' show cos, sqrt, asin;
+
 void main() {
   runApp(MyApp());
 }
@@ -77,7 +87,13 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: Wrapper(),
-        //home: SharelyMeter(),
+        // home: SharelyMeter(),
+        // home: ConfirmScreen(), //confirmation page
+        routes: {
+          //'/': (ctx) => SharelyMeter(),
+          MapView.route: (ctx) => MapView(),
+          // ConfirmScreen.route: (ctx) => ConfirmScreen(),
+        },
       ),
     );
   }
