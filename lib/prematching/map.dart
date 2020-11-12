@@ -14,6 +14,10 @@ import 'package:sharelymeter/shared/constants.dart';
 
 import '../screens/add/component/confirm_screen.dart';
 
+//khem
+import 'package:sharelymeter/database/dbformatching.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'dart:math' show cos, sqrt, asin;
 
 // void main() {
@@ -66,6 +70,10 @@ class _MapViewState extends State<MapView> {
   String _destinationAddress = '';
   String _placeDistance = '';
 
+  String startAddress = '';
+  String destinationAdress = '';
+
+
   double sLat = 0;
   double sLng = 0;
   double dLat = 0;
@@ -76,6 +84,7 @@ class _MapViewState extends State<MapView> {
   double destLat = 0;
   double destLng = 0;
   double totalDistance = 0;
+  String userID = "Test";
 
   Set<Marker> markers = {};
 
@@ -549,6 +558,23 @@ class _MapViewState extends State<MapView> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
+
+            final FirebaseAuth auth = FirebaseAuth.instance;
+             Future<void> inputData() async {
+                            final User user = auth.currentUser;
+                            final uid = user.uid;
+                            return await DatabaseServices(uid: user.uid).addingRoutingData(
+                              destLat,
+                              destLng,
+                              destinationAdress,
+                              startAddress,
+                              startLat,
+                              startLng,
+                              totalDistance,
+                              userID,
+                            );
+                          }
+            inputData();
             showDialog(
               context: context,
               child: new AlertDialog(
@@ -673,6 +699,7 @@ class _MapViewState extends State<MapView> {
                 // ),
               ),
             );
+            
           },
           child: Icon(Icons.done_all),
           backgroundColor: Colors.red),
