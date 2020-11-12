@@ -558,7 +558,8 @@ class _MapViewState extends State<MapView> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-
+            destinationAdress = _destinationAddress;
+            startAddress = _startAddress;
             final FirebaseAuth auth = FirebaseAuth.instance;
              Future<void> inputData() async {
                             final User user = auth.currentUser;
