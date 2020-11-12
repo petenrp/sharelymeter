@@ -558,24 +558,24 @@ class _MapViewState extends State<MapView> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            destinationAdress = _destinationAddress;
-            startAddress = _startAddress;
-            final FirebaseAuth auth = FirebaseAuth.instance;
-             Future<void> inputData() async {
-                            final User user = auth.currentUser;
-                            final uid = user.uid;
-                            return await DatabaseServices(uid: user.uid).addingRoutingData(
-                              destLat,
-                              destLng,
-                              destinationAdress,
-                              startAddress,
-                              startLat,
-                              startLng,
-                              totalDistance,
-                              userID,
-                            );
-                          }
-            inputData();
+            // destinationAdress = _destinationAddress;
+            // startAddress = _startAddress;
+            // final FirebaseAuth auth = FirebaseAuth.instance;
+            //  Future<void> inputData() async {
+            //                 final User user = auth.currentUser;
+            //                 final uid = user.uid;
+            //                 return await DatabaseServices(uid: user.uid).addingRoutingData(
+            //                   destLat,
+            //                   destLng,
+            //                   destinationAdress,
+            //                   startAddress,
+            //                   startLat,
+            //                   startLng,
+            //                   totalDistance,
+            //                   userID,
+            //                 );
+            //               }
+            // inputData();
             showDialog(
               context: context,
               child: new AlertDialog(
@@ -651,25 +651,28 @@ class _MapViewState extends State<MapView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       FlatButton(
-                        onPressed: () async {
-                          sLat = startLat;
-                          sLng = startLng;
-                          dLat = destLat;
-                          dLng = destLng;
-                          // Navigator.of(context).push(route)
+                        onPressed: () {
 
-                          await routeDBS.createItem(
-                            RouteModel(
-                              userID: '',
-                              startLat: startLat,
-                              startLng: startLng,
-                              destLat: destLat,
-                              destLng: destLng,
-                              totalDistance: totalDistance,
-                              startAddress: _startAddress,
-                              destinationAdress: _destinationAddress,
-                            ),
-                          );
+                          destinationAdress = _destinationAddress;
+                          startAddress = _startAddress;
+                          final FirebaseAuth auth = FirebaseAuth.instance;
+                          Future<void> inputData() async {
+                            final User user = auth.currentUser;
+                            final uid = user.uid;
+                            return await DatabaseServices(uid: user.uid).addingRoutingData(
+                              destLat,
+                              destLng,
+                              destinationAdress,
+                              startAddress,
+                              startLat,
+                              startLng,
+                              totalDistance,
+                              userID,
+                            );
+                          }
+                          inputData();
+
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
