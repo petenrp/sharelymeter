@@ -18,11 +18,21 @@ import '../screens/add/component/confirm_screen.dart';
 import 'package:sharelymeter/database/dbformatching.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'dart:math' show cos, sqrt, asin;
-
 //SocketIO
 import 'package:socket_io/socket_io.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+//Google Map Autocomplete
+// import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:uuid/uuid.dart';
+import 'package:sharelymeter/prematching/address_search.dart';
+import 'package:sharelymeter/prematching/place_service.dart';
+
+
+import 'dart:math' show cos, sqrt, asin;
+
+
 
 // void main() {
 //   runApp(MyApp());
@@ -69,7 +79,7 @@ class _MapViewState extends State<MapView> {
 
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
-
+  String _streetNumber ='';
   String _startAddress = '';
   String _destinationAddress = '';
   String _placeDistance = '';
@@ -97,6 +107,21 @@ class _MapViewState extends State<MapView> {
   List<LatLng> polylineCoordinates = [];
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  //Autocomplete
+  final _controller = TextEditingController();
+  String _locationName = '';
+  String _streeNumber = '';
+  String _street = '';
+  String _city = '';
+  String _zipCode = '';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
 
   Widget _textField({
     TextEditingController controller,
@@ -413,8 +438,25 @@ class _MapViewState extends State<MapView> {
                             suffixIcon: IconButton(
                               icon: Icon(Icons.my_location),
                               onPressed: () {
-                                startAddressController.text = _currentAddress;
-                                _startAddress = _currentAddress;
+                              //  startAddressController.text = _currentAddress;
+                              //  _startAddress = _currentAddress;
+                              final sessionToken = Uuid().v4();
+                              final Suggestion result = await showSearch(
+                                context: context,
+                                delegate: AddressSearch(sessionToken),
+                              );
+                              // This will change the text displayed in the TextField
+                              if (result != null) {
+                                final placeDetails = await PlaceApiProvider(sessionToken)
+                                .getPlaceDetailFromId(result.placeId);
+                                setState(() {
+                                _controller.text = result.description;
+                                _streetNumber = placeDetails.streetNumber;
+                                _street = placeDetails.street;
+                                _city = placeDetails.city;
+                                _zipCode = placeDetails.zipCode;
+                  });
+                }
                               },
                             ),
                             controller: startAddressController,

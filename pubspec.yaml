@@ -45,6 +45,10 @@ dependencies:
   web_socket_channel:
   socket_io: ^0.9.4
   socket_io_client: ^0.9.11
+  flutter_google_places: ^0.2.6
+  google_maps_webservice: ^0.0.18
+  http: ^0.12.1
+  uuid: ^2.0.4
 
   ###
   firebase_helpers: ^0.2.1
