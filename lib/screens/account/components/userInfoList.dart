@@ -21,3 +21,17 @@ class _userInfoListState extends State<userInfoList> {
     );
   }
 }
+
+class UserInfo{
+  String email;
+  String firstname;
+  String lastname;
+  String phonenumber;
+
+  UserInfo.fromMap(Map<String, dynamic> data){
+    email = data['email'];
+    firstname = data['firstname'];
+    lastname = data['lastname'];
+    phonenumber = data['phonenumber'];
+  }
+}
