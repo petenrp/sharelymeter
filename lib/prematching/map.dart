@@ -29,10 +29,7 @@ import 'package:uuid/uuid.dart';
 import 'package:sharelymeter/prematching/address_search.dart';
 import 'package:sharelymeter/prematching/place_service.dart';
 
-
 import 'dart:math' show cos, sqrt, asin;
-
-
 
 // void main() {
 //   runApp(MyApp());
@@ -79,14 +76,14 @@ class _MapViewState extends State<MapView> {
 
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
-  String _streetNumber ='';
+  
+  String _streetNumber = '';
   String _startAddress = '';
   String _destinationAddress = '';
   String _placeDistance = '';
 
   String startAddress = '';
   String destinationAdress = '';
-
 
   double sLat = 0;
   double sLng = 0;
@@ -121,7 +118,6 @@ class _MapViewState extends State<MapView> {
     _controller.dispose();
     super.dispose();
   }
-
 
   Widget _textField({
     TextEditingController controller,
@@ -437,34 +433,38 @@ class _MapViewState extends State<MapView> {
                             prefixIcon: Icon(Icons.looks_one),
                             suffixIcon: IconButton(
                               icon: Icon(Icons.my_location),
-                              onPressed: () {
-                              //  startAddressController.text = _currentAddress;
-                              //  _startAddress = _currentAddress;
-                              final sessionToken = Uuid().v4();
-                              final Suggestion result = await showSearch(
-                                context: context,
-                                delegate: AddressSearch(sessionToken),
-                              );
-                              // This will change the text displayed in the TextField
-                              if (result != null) {
-                                final placeDetails = await PlaceApiProvider(sessionToken)
-                                .getPlaceDetailFromId(result.placeId);
-                                setState(() {
-                                _controller.text = result.description;
-                                _streetNumber = placeDetails.streetNumber;
-                                _street = placeDetails.street;
-                                _city = placeDetails.city;
-                                _zipCode = placeDetails.zipCode;
-                  });
-                }
+                              onPressed: () async {
+                                //  startAddressController.text = _currentAddress;
+                                //  _startAddress = _currentAddress;
+                                final sessionToken = Uuid().v4();
+                                final Suggestion result = await showSearch(
+                                  context: context,
+                                  delegate: AddressSearch(sessionToken),
+                                );
+                                // This will change the text displayed in the TextField
+                                if (result != null) {
+                                  final placeDetails =
+                                      await PlaceApiProvider(sessionToken)
+                                          .getPlaceDetailFromId(result.placeId);
+                                  setState(() {
+                                    _controller.text = result.description;
+                                    _streetNumber = placeDetails.streetNumber;
+                                    _street = placeDetails.street;
+                                    _city = placeDetails.city;
+                                    _zipCode = placeDetails.zipCode;
+                                  });
+                                }
                               },
                             ),
                             controller: startAddressController,
                             width: width,
                             locationCallback: (String value) {
+                              // value = _streetNumber;
                               setState(() {
                                 _startAddress = value;
+                                // _streetNumber = value;
                                 print(_startAddress);
+                                // print('$_streetNumber');
                               });
                             }),
                         // Stop point
@@ -698,14 +698,14 @@ class _MapViewState extends State<MapView> {
                     children: [
                       FlatButton(
                         onPressed: () {
-
                           destinationAdress = _destinationAddress;
                           startAddress = _startAddress;
                           final FirebaseAuth auth = FirebaseAuth.instance;
                           Future<void> inputData() async {
                             final User user = auth.currentUser;
                             final uid = user.uid;
-                            return await DatabaseServices(uid: user.uid).addingRoutingData(
+                            return await DatabaseServices(uid: user.uid)
+                                .addingRoutingData(
                               destLat,
                               destLng,
                               destinationAdress,
@@ -716,8 +716,8 @@ class _MapViewState extends State<MapView> {
                               userID,
                             );
                           }
-                          inputData();
 
+                          inputData();
 
                           Navigator.push(
                             context,
@@ -749,7 +749,6 @@ class _MapViewState extends State<MapView> {
                 // ),
               ),
             );
-            
           },
           child: Icon(Icons.done_all),
           backgroundColor: Colors.red),
