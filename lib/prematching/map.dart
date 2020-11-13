@@ -20,6 +20,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
+//SocketIO
+import 'package:socket_io/socket_io.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
 // void main() {
 //   runApp(MyApp());
 // }
