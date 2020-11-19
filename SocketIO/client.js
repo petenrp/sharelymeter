@@ -1,7 +1,7 @@
 const io = require('socket.io-client');
 
-const socket = io('https://afternoon-tor-56476.herokuapp.com');
-// const socket = io('http://localhost:3000');
+// const socket = io('https://afternoon-tor-56476.herokuapp.com');
+const socket = io('http://localhost:3000');
 
 console.log(socket.connected); // false
 

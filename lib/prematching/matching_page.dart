@@ -16,22 +16,13 @@ import '../screens/add/component/confirm_screen.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
-// void main() {
-//   runApp(MyApp());
-// }
+//khem
+import 'package:sharelymeter/database/dbformatching.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Maps',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: MapMatching(),
-//     );
-//   }
-// }
+//SocketIO
+import 'package:socket_io/socket_io.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class MapMatching extends StatefulWidget {
   static const route = '/pre-matching';
@@ -84,6 +75,14 @@ class _MapMatchingState extends State<MapMatching> {
   List<LatLng> polylineCoordinates = [];
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  //SocketIO
+  IO.Socket socket = IO.io('https://afternoon-tor-56476.herokuapp.com', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+  });
+  
+
 
   Widget _textField({
     TextEditingController controller,
@@ -139,7 +138,7 @@ class _MapMatchingState extends State<MapMatching> {
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
-        print('CURRENT POS: $_currentPosition');
+        print('CURRENT POSITION: $_currentPosition');
         mapController.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
@@ -163,12 +162,14 @@ class _MapMatchingState extends State<MapMatching> {
 
       Placemark place = p[0];
 
-      setState(() {
-        _currentAddress =
-            "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
-        startAddressController.text = _currentAddress;
-        _startAddress = _currentAddress;
-      });
+      //currennt location name
+      // setState(() {
+      //   _currentAddress =
+      //       "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
+      //   startAddressController.text = _currentAddress;
+      //   _startAddress = _currentAddress;
+      // });
+
     } catch (e) {
       print(e);
     }
@@ -267,27 +268,7 @@ class _MapMatchingState extends State<MapMatching> {
           ),
         );
 
-        // Calculating the distance between the start and the end positions
-        // with a straight path, without considering any route
-        // double distanceInMeters = await Geolocator().bearingBetween(
-        //   startCoordinates.latitude,
-        //   startCoordinates.longitude,
-        //   destinationCoordinates.latitude,
-        //   destinationCoordinates.longitude,
-        // );
-
         await _createPolylines(startCoordinates, destinationCoordinates);
-
-        // Calculating the total distance by adding the distance
-        // between small segments
-        // for (int i = 0; i < polylineCoordinates.length - 1; i++) {
-        //   totalDistance += _coordinateDistance(
-        //     polylineCoordinates[i].latitude,
-        //     polylineCoordinates[i].longitude,
-        //     polylineCoordinates[i + 1].latitude,
-        //     polylineCoordinates[i + 1].longitude,
-        //   );
-        // }
 
         setState(() {
           _placeDistance = totalDistance.toStringAsFixed(2);
@@ -301,17 +282,6 @@ class _MapMatchingState extends State<MapMatching> {
     }
     return false;
   }
-
-  // Formula for calculating distance between two coordinates
-  // https://stackoverflow.com/a/54138876/11910277
-  // double _coordinateDistance(lat1, lon1, lat2, lon2) {
-  //   var p = 0.017453292519943295;
-  //   var c = cos;
-  //   var a = 0.5 -
-  //       c((lat2 - lat1) * p) / 2 +
-  //       c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  //   return 12742 * asin(sqrt(a));
-  // }
 
   // Create the polylines for showing the route between two places
   _createPolylines(Position start, Position destination) async {
@@ -343,6 +313,17 @@ class _MapMatchingState extends State<MapMatching> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    print('Connecting');
+    this.socket.on('connect', (_) {
+      print('Connected');
+    });
+    this.socket.connect();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    this.socket.disconnect();
   }
 
   @override
@@ -367,7 +348,7 @@ class _MapMatchingState extends State<MapMatching> {
               mapController = controller;
             },
           ),
-          // showing the route
+          // Showing Result
           SafeArea(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -416,21 +397,3 @@ class _MapMatchingState extends State<MapMatching> {
   }
 }
 
-//เมื่อแตะปุ่มจะส่งค่าไปแมท
-// onTap: () async {
-//   await routeDBS.createItem(
-//     RouteModel(
-//       userID: "ddddd",
-//       startLat: startLat,
-//       startLng: startLng,
-//       destLat: destLat,
-//       destLng: destLng,
-//       totalDistance: totalDistance,
-//     ),
-//   );
-//   print('Distance: $totalDistance');
-//   // print('START COORDINATES: $startCoordinates');
-//   print('START COORDINATES: $startLat, $startLng');
-//   // print('DESTINATION COORDINATES: $destinationCoordinates');
-//   print('DESTINATION COORDINATES: $destLat, $destLng');
-// }, //ส่งไปแมทใน firebase

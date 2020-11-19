@@ -173,7 +173,7 @@ class _MapViewState extends State<MapView> {
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
-        print('CURRENT POS: $_currentPosition');
+        print('CURRENT POSITION: $_currentPosition');
         mapController.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
@@ -197,12 +197,14 @@ class _MapViewState extends State<MapView> {
 
       Placemark place = p[0];
 
-      setState(() {
-        _currentAddress =
-            "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
-        startAddressController.text = _currentAddress;
-        _startAddress = _currentAddress;
-      });
+      //current location
+      // setState(() {
+      //   _currentAddress =
+      //       "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
+      //   startAddressController.text = _currentAddress;
+      //   _startAddress = _currentAddress;
+      // });
+      
     } catch (e) {
       print(e);
     }
@@ -698,6 +700,12 @@ class _MapViewState extends State<MapView> {
                     children: [
                       FlatButton(
                         onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("No"),
+                      ),
+                      FlatButton(
+                        onPressed: () {
                           destinationAdress = _destinationAddress;
                           startAddress = _startAddress;
                           final FirebaseAuth auth = FirebaseAuth.instance;
@@ -733,12 +741,12 @@ class _MapViewState extends State<MapView> {
                         },
                         child: Text("Yes"),
                       ),
-                      FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("No"),
-                      ),
+                      // FlatButton(
+                      //   onPressed: () {
+                      //     Navigator.of(context).pop();
+                      //   },
+                      //   child: Text("No"),
+                      // ),
                     ],
                   ),
                 ],

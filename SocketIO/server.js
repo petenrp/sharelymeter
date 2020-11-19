@@ -1,15 +1,33 @@
 const app = require("express")();
 const PORT = process.env.PORT || 3000
 
+const userIDs = {};
+const all = [];
+
+app.get('/userIds', (req, res) => {
+    res.json(userIDs).send();
+});
+
+app.get('/all', (req, res) => {
+    const formattedAllSessions = all.map(a => ({
+        ...a,
+        socket: a.socket.id,
+    }))
+    res.json(formattedAllSessions).send();
+});
+
+app.get('/clear', (req, res) => {
+    const keys = Object.keys(userIds);
+    keys.forEach((k) => {
+       delete userIDs[k]; 
+    });
+});
+
 const server = app.listen(PORT, function () {
     console.log(`Listening on port ${PORT}`);
     // console.log(`http://localhost:${PORT}`);
 });
 const io = require('socket.io')(server);
-
-const userIDs = {};
-
-const all = [];
 
 const CRITERIA = 0.00582776856524;
 
@@ -34,19 +52,19 @@ io.on('connection', (socket) => {
         userIDs[socket.id] = userID;
     });
     socket.on('request', ({src, dest}) => {
-        // const s = all.filter(e => e.socket == socket);
-        // if(!s.alive) {
-        //     all.push({
-        //         socket,
-        //         dest,
-        //         src,
-        //         alive: true
-        //     });
-        // } else {
-        //     s.dest = dest;
-        //     s.src = src;
-        // }
-        // findAll(socket, src, dest);
+        const s = all.filter(e => e.socket == socket);
+        if(!s.alive) {
+            all.push({
+                socket,
+                dest,
+                src,
+                alive: true
+            });
+        } else {
+            s.dest = dest;
+            s.src = src;
+        }
+        findAll(socket, src, dest);
     });
     socket.on('disconnect', (reason) => {
         const userID = userIDs[socket.id];
