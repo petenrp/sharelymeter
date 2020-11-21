@@ -524,135 +524,135 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  FloatingActionButton buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            child: new AlertDialog(
-              title: Text("Confirmation"),
-              content: Container(
-                //color: Colors.amber,
-                height: 120,
-                child: Column(
-                  children: [
-                    Container(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Start: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 50,
-                              ),
-                              Text(
-                                _startAddress,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Destination: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 50,
-                              ),
-                              Text(
-                                _destinationAddress,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("No"),
-                    ),
-                    FlatButton(
-                      onPressed: () {
-                        destinationAdress = _destinationAddress;
-                        startAddress = _startAddress;
-                        final FirebaseAuth auth = FirebaseAuth.instance;
-                        Future<void> inputData() async {
-                          final User user = auth.currentUser;
-                          final uid = user.uid;
-                          return await DatabaseServices(uid: user.uid)
-                              .addingRoutingData(
-                            destLat,
-                            destLng,
-                            destinationAdress,
-                            startAddress,
-                            startLat,
-                            startLng,
-                            totalDistance,
-                            userID,
-                          );
-                        }
+  // FloatingActionButton buildFloatingActionButton(BuildContext context) {
+  //   return FloatingActionButton(
+  //       onPressed: () {
+  //         showDialog(
+  //           context: context,
+  //           child: new AlertDialog(
+  //             title: Text("Confirmation"),
+  //             content: Container(
+  //               //color: Colors.amber,
+  //               height: 120,
+  //               child: Column(
+  //                 children: [
+  //                   Container(
+  //                     child: Column(
+  //                       children: [
+  //                         Row(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               "Start: ",
+  //                               style: TextStyle(
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         SizedBox(
+  //                           height: 10,
+  //                         ),
+  //                         Row(
+  //                           children: [
+  //                             SizedBox(
+  //                               width: 50,
+  //                             ),
+  //                             Text(
+  //                               _startAddress,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         SizedBox(
+  //                           height: 20,
+  //                         ),
+  //                         Row(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               "Destination: ",
+  //                               style: TextStyle(
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         SizedBox(
+  //                           height: 10,
+  //                         ),
+  //                         Row(
+  //                           children: [
+  //                             SizedBox(
+  //                               width: 50,
+  //                             ),
+  //                             Text(
+  //                               _destinationAddress,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             actions: <Widget>[
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   FlatButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop();
+  //                     },
+  //                     child: Text("No"),
+  //                   ),
+  //                   FlatButton(
+  //                     onPressed: () {
+  //                       destinationAdress = _destinationAddress;
+  //                       startAddress = _startAddress;
+  //                       final FirebaseAuth auth = FirebaseAuth.instance;
+  //                       Future<void> inputData() async {
+  //                         final User user = auth.currentUser;
+  //                         final uid = user.uid;
+  //                         return await DatabaseServices(uid: user.uid)
+  //                             .addingRoutingData(
+  //                           destLat,
+  //                           destLng,
+  //                           destinationAdress,
+  //                           startAddress,
+  //                           startLat,
+  //                           startLng,
+  //                           totalDistance,
+  //                           userID,
+  //                         );
+  //                       }
 
-                        inputData();
+  //                       inputData();
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ConfirmScreen(
-                              sLat: sLat,
-                              sLng: sLng,
-                              dLat: dLat,
-                              dLng: dLng,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text("Yes"),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-        child: Icon(Icons.done_all),
-        backgroundColor: Colors.red);
-  }
+  //                       Navigator.push(
+  //                         context,
+  //                         MaterialPageRoute(
+  //                           builder: (context) => ConfirmScreen(
+  //                             sLat: sLat,
+  //                             sLng: sLng,
+  //                             dLat: dLat,
+  //                             dLng: dLng,
+  //                           ),
+  //                         ),
+  //                       );
+  //                     },
+  //                     child: Text("Yes"),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //       child: Icon(Icons.done_all),
+  //       backgroundColor: Colors.red);
+  // }
 
   SafeArea buildButtons() {
     return SafeArea(
