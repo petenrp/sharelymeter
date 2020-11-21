@@ -14,6 +14,9 @@ import 'package:sharelymeter/shared/constants.dart';
 
 import '../screens/add/component/confirm_screen.dart';
 
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:sharelymeter/shared/constants.dart';
+
 import 'dart:math' show cos, sqrt, asin;
 
 //khem
@@ -77,12 +80,11 @@ class _MapMatchingState extends State<MapMatching> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   //SocketIO
-  IO.Socket socket = IO.io('https://afternoon-tor-56476.herokuapp.com', <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
+  IO.Socket socket =
+      IO.io('https://afternoon-tor-56476.herokuapp.com', <String, dynamic>{
+    'transports': ['websocket'],
+    'autoConnect': false,
   });
-  
-
 
   Widget _textField({
     TextEditingController controller,
@@ -355,37 +357,185 @@ class _MapMatchingState extends State<MapMatching> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 5.0),
                 child: Container(
+                  //white area
+                  height: height * 0.28,
+                  width: width - (4 * kDefaultPadding),
                   decoration: BoxDecoration(
-                    color: Colors.white70,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(20.0),
-                    ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, 17),
+                        blurRadius: 24,
+                        spreadRadius: -14,
+                        color: kShadowColor,
+                      ),
+                    ],
                   ),
-                  width: width * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          '',
-                          style: TextStyle(fontSize: 20.0),
+                  //information
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      //date and time
+                      Container(
+                        padding: EdgeInsets.only(
+                          top: kDefaultPadding,
+                          left: kDefaultPadding,
                         ),
-                        SizedBox(height: 5),
-                        _textField(
-                            label: 'From',
-                            width: width,
-                            locationCallback: (String value) {}),
-                        SizedBox(height: 5),
-                        _textField(
-                            label: 'To',
-                            width: width,
-                            locationCallback: (String value) {}),
-                        SizedBox(height: 5),
-                        SizedBox(height: 0),
-                        // RaisedButton(
-                      ],
-                    ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Icon(
+                                FlutterIcons.schedule_mdi,
+                                size: 30,
+                                color: kLightGreyColor,
+                              ),
+                            ),
+                            Container(
+                                margin: EdgeInsets.only(
+                                  left: kDefaultPadding / 2,
+                                ),
+                                child: Text(
+                                  "7 May 2020, 18:00",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ))
+                          ],
+                        ),
+                      ),
+                      //start point
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: kDefaultPadding / 4,
+                          left: kDefaultPadding + 5,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Icon(
+                                FlutterIcons.radio_button_unchecked_mdi,
+                                size: 20,
+                                color: kLightGreyColor,
+                              ),
+                            ),
+                            Container(
+                                width: 270,
+                                margin: EdgeInsets.only(
+                                  left: kDefaultPadding * 0.75,
+                                ),
+                                child: Text(
+                                  "startPoint",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ))
+                          ],
+                        ),
+                      ),
+                      //line
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: kDefaultPadding / 4,
+                          left: kDefaultPadding + 12.5,
+                        ),
+                        height: 30,
+                        width: 5,
+                        color: kShadowColor,
+                      ),
+                      //destination point
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: kDefaultPadding / 4,
+                          left: kDefaultPadding,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Icon(
+                                FlutterIcons.location_on_mdi,
+                                size: 30,
+                                color: kLightGreyColor,
+                              ),
+                            ),
+                            Container(
+                                width: 265,
+                                margin: EdgeInsets.only(
+                                  left: kDefaultPadding * 0.75,
+                                ),
+                                child: Text(
+                                  "destinationPoint",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ))
+                          ],
+                        ),
+                      ),
+                      //partner
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: kDefaultPadding / 4,
+                          left: kDefaultPadding,
+                        ),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                child: Icon(
+                                  FlutterIcons.supervisor_account_mdi,
+                                  size: 30,
+                                  color: kLightGreyColor,
+                                ),
+                              ),
+                              Container(
+                                  width: 265,
+                                  margin: EdgeInsets.only(
+                                    left: kDefaultPadding * 0.75,
+                                  ),
+                                  child: Text(
+                                    "partnerFirstname" + " " + "partnerPhoneNumber",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ))
+                            ]),
+                      ),
+                      //status
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: kDefaultPadding / 4,
+                          left: kDefaultPadding + 5,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Icon(FlutterIcons.circle_mco,
+                                  size: 20, color: Colors.orange),
+                            ),
+                            Container(
+                                width: 270,
+                                margin: EdgeInsets.only(
+                                  left: kDefaultPadding * 0.75,
+                                ),
+                                child: Text(
+                                  "status",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ))
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -396,4 +546,3 @@ class _MapMatchingState extends State<MapMatching> {
     );
   }
 }
-

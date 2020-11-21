@@ -34,21 +34,21 @@ class NavItems extends ChangeNotifier {
       icon: "assets/icons/home-filled.svg",
       destination: HomeScreen(),
     ),
-    NavItem(
-      id: 2,
-      icon: "assets/icons/activity-filled.svg",
-      destination: ActivityScreen()
-    ),
+    // NavItem(
+    //   id: 2,
+    //   icon: "assets/icons/activity-filled.svg",
+    //   destination: ActivityScreen()
+    // ),
     NavItem(
       id: 3,
       icon: "assets/icons/add-filled.svg",
       destination: AddScreen()
     ),
-    NavItem(
-      id: 4,
-      icon: "assets/icons/notification-filled.svg",
-      destination: NotificationScreen()
-    ),
+    // NavItem(
+    //   id: 4,
+    //   icon: "assets/icons/notification-filled.svg",
+    //   destination: NotificationScreen()
+    // ),
     NavItem(
       id: 5,
       icon: "assets/icons/account-filled.svg",

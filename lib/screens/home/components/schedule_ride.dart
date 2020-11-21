@@ -10,7 +10,8 @@ class ScheduleRide extends StatelessWidget {
     this.startPoint,
     this.destinationPoint,
     this.partnerFirstname,
-    this.partnerLastname,
+    this.partnerPhoneNumber,
+    this.status,
     this.press,
   }) : super(key: key);
 
@@ -19,7 +20,8 @@ class ScheduleRide extends StatelessWidget {
       destinationPoint,
       dateAndTime,
       partnerFirstname,
-      partnerLastname;
+      partnerPhoneNumber,
+      status;
   final Function press;
 
   @override
@@ -58,7 +60,7 @@ class ScheduleRide extends StatelessWidget {
             ),
             //white area
             Container(
-              height: size.height * 0.3,
+              height: size.height * 0.28,
               width: size.width - (4 * kDefaultPadding),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -182,29 +184,62 @@ class ScheduleRide extends StatelessWidget {
                       top: kDefaultPadding / 4,
                       left: kDefaultPadding,
                     ),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            child: Icon(
-                              FlutterIcons.supervisor_account_mdi,
-                              size: 30,
-                              color: kLightGreyColor,
-                            ),
+                    child: Row (
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: Icon(
+                            FlutterIcons.supervisor_account_mdi,
+                            size: 30,
+                            color: kLightGreyColor,
                           ),
-                          Container(
-                              width: 265,
-                              margin: EdgeInsets.only(
-                                left: kDefaultPadding * 0.75,
+                        ),
+                        Container(
+                          width: 265,
+                          margin: EdgeInsets.only(
+                            left: kDefaultPadding * 0.75,
+                          ),
+                          child: Text(
+                            partnerFirstname + " " + partnerPhoneNumber,
+                            style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            ),
+                          )
+                        )
+                      ]
+                    ),
+                  ),
+                  //status
+                  Container(
+                    margin: EdgeInsets.only(
+                      top: kDefaultPadding / 4,
+                      left: kDefaultPadding + 5,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: Icon(
+                            FlutterIcons.circle_mco,
+                            size: 20,
+                            color: Colors.orange
+                          ),
+                        ),
+                        Container(
+                            width: 270,
+                            margin: EdgeInsets.only(
+                              left: kDefaultPadding * 0.75,
+                            ),
+                            child: Text(
+                              status,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
-                              child: Text(
-                                partnerFirstname + " " + partnerLastname,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ))
-                        ]),
+                            ))
+                      ],
+                    ),
                   ),
                 ],
               ),

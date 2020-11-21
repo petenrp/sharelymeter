@@ -11,35 +11,63 @@ class Body extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     //enable scrolling on small device
     return SafeArea(
-        child: Column(
-        children: <Widget>[
-          HeaderWithSearchBox(size: size),
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: kDefaultPadding,
+      child: Padding(
+        padding: EdgeInsets.only(top: 25, bottom: 0),
+        child: Container(
+          decoration: BoxDecoration(color: Colors.white),
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                child: HeaderWithSearchBox(
+                  size: size,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Wrap(
-                    children: <Widget>[
-                      ScheduleRide(
-                        size: size,
-                        dateAndTime: "18-12-2020, 18:00",
-                        startPoint: "King's Mongkutt University of Technology Thonburi",
-                        destinationPoint: "King's Mongkutt University of Technology Thonburi",
-                        partnerFirstname: "Naruhpak",
-                        partnerLastname: " Rotchanakanokchok",
-                        press: () {},
-                      ),
-                    ],
+              // Positioned(
+              //   top: size.height * 0.22,
+              //   child:
+              Container(
+                height: size.height * 0.85,
+                child: Padding(
+                  // padding: EdgeInsets.symmetric(
+                  //   horizontal: kDefaultPadding,
+                  // ),
+                  padding: EdgeInsets.only(
+                    top: size.height * 0.22,
+                    left: kDefaultPadding,
+                    right: kDefaultPadding,
                   ),
-                ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          child: ScheduleRide(
+                            size: size,
+                            dateAndTime: "18-12-2020, 18:00",
+                            startPoint:
+                                "King's Mongkutt University of Technology Thonburi",
+                            destinationPoint:
+                                "King's Mongkutt University of Technology Thonburi",
+                            partnerFirstname: "Naruhpak",
+                            partnerPhoneNumber: "0984787891",
+                            status: "On waiting",
+                            press: () {},
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+              // ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

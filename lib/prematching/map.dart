@@ -1,15 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 // Stores the Google Maps API Key
 import 'package:sharelymeter/googlemapapi.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; //firebase
 import 'dart:async';
 import '../models/route.dart';
-import '../database/firestore_db.dart';
-import 'package:firebase_helpers/firebase_helpers.dart';
 import 'package:sharelymeter/shared/constants.dart';
 
 import '../screens/add/component/confirm_screen.dart';
@@ -30,23 +29,6 @@ import 'package:sharelymeter/prematching/address_search.dart';
 import 'package:sharelymeter/prematching/place_service.dart';
 
 import 'dart:math' show cos, sqrt, asin;
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Maps',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: MapView(),
-//     );
-//   }
-// }
 
 class MapView extends StatefulWidget {
   static const route = '/pre-matching';
@@ -74,16 +56,21 @@ class _MapViewState extends State<MapView> {
   Position _currentPosition;
   String _currentAddress;
 
+  String _streetNumber = '';
+  String _startAddress = 'KMUTT';
+  String _destinationAddress = 'Central rama 2';
+  String _placeDistance = '';
+
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
-  
-  String _streetNumber = '';
-  String _startAddress = '';
-  String _destinationAddress = '';
-  String _placeDistance = '';
 
   String startAddress = '';
   String destinationAdress = '';
+
+  bool markersPinned = false;
+  bool showPlaceForm = true;
+  bool matchingConfirmRequest = false;
+  bool showCancelForm = false;
 
   double sLat = 0;
   double sLng = 0;
@@ -113,9 +100,18 @@ class _MapViewState extends State<MapView> {
   String _city = '';
   String _zipCode = '';
 
+  List<String> detailPoints = [];
+
+  IO.Socket socket =
+      IO.io('https://afternoon-tor-56476.herokuapp.com', <String, dynamic>{
+    'transports': ['websocket'],
+    'autoConnect': false,
+  });
+
   @override
   void dispose() {
     _controller.dispose();
+    this.socket.connect();
     super.dispose();
   }
 
@@ -160,7 +156,7 @@ class _MapViewState extends State<MapView> {
             ),
           ),
           contentPadding: EdgeInsets.all(15),
-          hintText: hint,
+          // hintText: hint,
         ),
       ),
     );
@@ -196,18 +192,38 @@ class _MapViewState extends State<MapView> {
           _currentPosition.latitude, _currentPosition.longitude);
 
       Placemark place = p[0];
-
-      //current location
-      // setState(() {
-      //   _currentAddress =
-      //       "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
-      //   startAddressController.text = _currentAddress;
-      //   _startAddress = _currentAddress;
-      // });
-      
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<Position> _getPositionFromAddress(_address) async {
+    List<Placemark> placeMark =
+        await _geolocator.placemarkFromAddress(_address);
+    if (placeMark != null) {
+      Position coordinate = placeMark[0].position;
+      return coordinate;
+    }
+    return null;
+  }
+
+  Future<void> _pinMarker(Position position,
+      {title = '', address = '', icon = BitmapDescriptor.defaultMarker}) async {
+    Marker marker = Marker(
+      markerId: MarkerId('$position'),
+      position: LatLng(
+        position.latitude,
+        position.longitude,
+      ),
+      infoWindow: InfoWindow(
+        title: title,
+        snippet: address,
+      ),
+      icon: icon,
+    );
+
+    print('added');
+    markers.add(marker);
   }
 
   // Method for calculating the distance between two places
@@ -258,6 +274,17 @@ class _MapViewState extends State<MapView> {
           icon: BitmapDescriptor.defaultMarker,
         );
 
+        List<Marker> wayPoints = [
+          Marker(
+              markerId: MarkerId('13.6653073,100.4654094'),
+              position: LatLng(13.6653073, 100.4654094),
+              icon: BitmapDescriptor.defaultMarker),
+          Marker(
+              markerId: MarkerId('13.6612775,100.4618654'),
+              position: LatLng(13.6612775, 100.4618654),
+              icon: BitmapDescriptor.defaultMarker)
+        ];
+
         startLat = startCoordinates.latitude;
         startLng = startCoordinates.longitude;
         destLat = destinationCoordinates.latitude;
@@ -266,6 +293,9 @@ class _MapViewState extends State<MapView> {
         // Adding the markers to the list
         markers.add(startMarker);
         markers.add(destinationMarker);
+        // wayPoints.forEach((element) {
+        //   markers.add(element);
+        // });
 
         // print('START COORDINATES: $startCoordinates');
         print('START COORDINATES: $startLat, $startLng');
@@ -303,16 +333,7 @@ class _MapViewState extends State<MapView> {
           ),
         );
 
-        // Calculating the distance between the start and the end positions
-        // with a straight path, without considering any route
-        // double distanceInMeters = await Geolocator().bearingBetween(
-        //   startCoordinates.latitude,
-        //   startCoordinates.longitude,
-        //   destinationCoordinates.latitude,
-        //   destinationCoordinates.longitude,
-        // );
-
-        await _createPolylines(startCoordinates, destinationCoordinates);
+        await _createPolylines([startCoordinates, destinationCoordinates]);
 
         totalDistance = 0.0;
 
@@ -352,13 +373,24 @@ class _MapViewState extends State<MapView> {
   }
 
   // Create the polylines for showing the route between two places
-  _createPolylines(Position start, Position destination) async {
+  _createPolylines(List<Position> positions) async {
     polylinePoints = PolylinePoints();
+
+    final start = positions[0];
+    final destination = positions[3];
+
+    final point2 = '' + positions[1].latitude.toString() + ',' + positions[1].longitude.toString();
+    final point3 = '' + positions[2].latitude.toString() + ',' + positions[2].longitude.toString();
+
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       GmapAPI.API_KEY, // Google Maps API Key
       PointLatLng(start.latitude, start.longitude),
       PointLatLng(destination.latitude, destination.longitude),
-      travelMode: TravelMode.transit,
+      travelMode: TravelMode.driving,
+      wayPoints: [
+        PolylineWayPoint(location: point2),
+        PolylineWayPoint(location: point3),
+      ]
     );
 
     if (result.points.isNotEmpty) {
@@ -381,6 +413,40 @@ class _MapViewState extends State<MapView> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+
+    this.socket.on('connect', (_) {
+      print('Connected');
+      this.socket.emit('request', '{"src":{"lat":13.6494925,"lng":100.4953804},"dest":{"lat":13.664666,"lng":100.441415}}');
+    });
+    this.socket.on('result', (value) async {
+      // print(value);
+      try {
+        Map<String, dynamic> result = jsonDecode(value);
+        detailPoints = 
+          (result['points'] as List)?.map((item) => item as String)?.toList();
+
+        List<Position> positions = 
+          (result['path'] as List)?.map((item) => Position(
+              latitude: item['lat'] as double,
+              longitude: item['lng'] as double,
+          ) as Position)?.toList();
+
+        positions.forEach((p) async {
+          await _pinMarker(p);
+        });
+
+        await _createPolylines(positions);
+        
+        setState(() {
+          showPlaceForm = false;
+          matchingConfirmRequest = true;
+        });
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    this.socket.connect();
   }
 
   @override
@@ -406,676 +472,607 @@ class _MapViewState extends State<MapView> {
             },
           ),
           // showing the route
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white70,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(20.0),
-                    ),
+          showPlaceForm ? buildForm(width, context) : Text(""),
+          showCancelForm
+              ? SafeArea(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: showPlaceForm
+                        ? RaisedButton(
+                            onPressed: () {
+                              resetBoolean();
+                            },
+                            color: kSecondaryColor,
+                            child: Text("Cancel Matching",
+                                style: TextStyle(color: Colors.white)),
+                          )
+                        : null,
                   ),
-                  width: width * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          'Places',
-                          style: TextStyle(fontSize: 20.0),
-                        ),
-                        SizedBox(height: 5),
-                        _textField(
-                            label: 'Start',
-                            hint: 'Choose starting point',
-                            prefixIcon: Icon(Icons.looks_one),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.my_location),
-                              onPressed: () async {
-                                //  startAddressController.text = _currentAddress;
-                                //  _startAddress = _currentAddress;
-                                final sessionToken = Uuid().v4();
-                                final Suggestion result = await showSearch(
-                                  context: context,
-                                  delegate: AddressSearch(sessionToken),
-                                );
-                                // This will change the text displayed in the TextField
-                                if (result != null) {
-                                  final placeDetails =
-                                      await PlaceApiProvider(sessionToken)
-                                          .getPlaceDetailFromId(result.placeId);
-                                  setState(() {
-                                    _controller.text = result.description;
-                                    _streetNumber = placeDetails.streetNumber;
-                                    _street = placeDetails.street;
-                                    _city = placeDetails.city;
-                                    _zipCode = placeDetails.zipCode;
-                                  });
-                                }
-                              },
-                            ),
-                            controller: startAddressController,
-                            width: width,
-                            locationCallback: (String value) {
-                              // value = _streetNumber;
-                              setState(() {
-                                _startAddress = value;
-                                // _streetNumber = value;
-                                print(_startAddress);
-                                // print('$_streetNumber');
-                              });
-                            }),
-                        // Stop point
-                        // SizedBox(height: 5),
-                        // _textField(
-                        //     label: 'Stop',
-                        //     hint: 'Pin stop point',
-                        //     prefixIcon: Icon(Icons.looks_one),
-                        //     suffixIcon: IconButton(
-                        //       icon: Icon(Icons.my_location),
-                        //       onPressed: () {
-                        //         startAddressController.text = _currentAddress;
-                        //         _startAddress = _currentAddress;
-                        //       },
-                        //     ),
-                        //     controller: startAddressController,
-                        //     width: width,
-                        //     locationCallback: (String value) {
-                        //       setState(() {
-                        //         _startAddress = value;
-                        //         print(_startAddress);
-                        //       });
-                        //     }),
-                        SizedBox(height: 5),
-                        _textField(
-                            label: 'Destination',
-                            hint: 'Choose destination',
-                            prefixIcon: Icon(Icons.looks_two),
-                            controller: destinationAddressController,
-                            width: width,
-                            locationCallback: (String value) {
-                              setState(() {
-                                _destinationAddress = value;
-                                print(_destinationAddress);
-                              });
-                            }),
-                        SizedBox(height: 5),
-                        Visibility(
-                          visible: _placeDistance == null ? false : true,
-                          child: Text(
-                            'DISTANCE: $_placeDistance km',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 0),
-                        RaisedButton(
-                          onPressed: (_startAddress != '' &&
-                                  _destinationAddress != '')
-                              ? () async {
-                                  setState(() {
-                                    if (markers.isNotEmpty) markers.clear();
-                                    if (polylines.isNotEmpty) polylines.clear();
-                                    if (polylineCoordinates.isNotEmpty)
-                                      polylineCoordinates.clear();
-                                    _placeDistance = null;
-                                  });
+                )
+              : Text(""),
+          // buildButtons(),
+          matchingConfirmRequest ? buildDetailBox(width, context) : Text(""),
+        ],
+      ),
+      // floatingActionButton: buildFloatingActionButton(context),
+    );
+  }
 
-                                  _calculateDistance().then((isCalculated) {
-                                    if (isCalculated) {
-                                      _scaffoldKey.currentState.showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Distance Calculated Sucessfully'),
-                                        ),
-                                      );
-                                    } else {
-                                      _scaffoldKey.currentState.showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              'Error Calculating Distance'),
-                                        ),
-                                      );
-                                    }
-                                  });
-                                }
-                              : null,
-                          color: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Show Route'.toUpperCase(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
+  FloatingActionButton buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            child: new AlertDialog(
+              title: Text("Confirmation"),
+              content: Container(
+                //color: Colors.amber,
+                height: 120,
+                child: Column(
+                  children: [
+                    Container(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Start: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 50,
+                              ),
+                              Text(
+                                _startAddress,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Destination: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 50,
+                              ),
+                              Text(
+                                _destinationAddress,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("No"),
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        destinationAdress = _destinationAddress;
+                        startAddress = _startAddress;
+                        final FirebaseAuth auth = FirebaseAuth.instance;
+                        Future<void> inputData() async {
+                          final User user = auth.currentUser;
+                          final uid = user.uid;
+                          return await DatabaseServices(uid: user.uid)
+                              .addingRoutingData(
+                            destLat,
+                            destLng,
+                            destinationAdress,
+                            startAddress,
+                            startLat,
+                            startLng,
+                            totalDistance,
+                            userID,
+                          );
+                        }
+
+                        inputData();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ConfirmScreen(
+                              sLat: sLat,
+                              sLng: sLng,
+                              dLat: dLat,
+                              dLng: dLng,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text("Yes"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+        child: Icon(Icons.done_all),
+        backgroundColor: Colors.red);
+  }
+
+  SafeArea buildButtons() {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 5.0, bottom: 25.0),
+          child: ClipOval(
+            child: Material(
+              color: Colors.orange[100], // button color
+              child: InkWell(
+                splashColor: Colors.orange, // inkwell color
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: Icon(Icons.my_location),
+                ),
+                onTap: () {
+                  mapController.animateCamera(
+                    CameraUpdate.newCameraPosition(
+                      CameraPosition(
+                        target: LatLng(
+                          _currentPosition.latitude,
+                          _currentPosition.longitude,
+                        ),
+                        zoom: 18.0,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> formButtonHandler() async {
+    if (!markersPinned) {
+      await pinMarkersByAddresses();
+    } else {
+      print("Finding Match");
+      setState(() {
+        // findingMatch = true;
+        showPlaceForm = false;
+        matchingConfirmRequest = true;
+      });
+    }
+    // _calculateDistance().then((isCalculated) {
+    //   if (isCalculated) {
+    //     _scaffoldKey.currentState.showSnackBar(
+    //       SnackBar(
+    //         content: Text(
+    //             'Distance Calculated Sucessfully'),
+    //       ),
+    //     );
+    //   } else {
+    //     _scaffoldKey.currentState.showSnackBar(
+    //       SnackBar(
+    //         content: Text(
+    //             'Error Calculating Distance'),
+    //       ),
+    //     );
+    //   }
+    // });
+  }
+
+  Future pinMarkersByAddresses() async {
+    setState(() {
+      if (markers.isNotEmpty) markers.clear();
+      if (polylines.isNotEmpty) polylines.clear();
+      if (polylineCoordinates.isNotEmpty) polylineCoordinates.clear();
+      _placeDistance = null;
+    });
+
+    try {
+      Position _northeastCoordinates;
+      Position _southwestCoordinates;
+
+      Position startingPoint = await _getPositionFromAddress(_startAddress);
+      await _pinMarker(startingPoint);
+
+      Position destinationPoint =
+          await _getPositionFromAddress(_destinationAddress);
+      await _pinMarker(destinationPoint);
+
+      print(markers);
+
+      setState(() {
+        markersPinned = true;
+      });
+
+      if (startingPoint.latitude <= destinationPoint.latitude) {
+        _southwestCoordinates = startingPoint;
+        _northeastCoordinates = destinationPoint;
+      } else {
+        _southwestCoordinates = destinationPoint;
+        _northeastCoordinates = startingPoint;
+      }
+
+      // Accommodate the two locations within the
+      // camera view of the map
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            northeast: LatLng(
+              _northeastCoordinates.latitude,
+              _northeastCoordinates.longitude,
+            ),
+            southwest: LatLng(
+              _southwestCoordinates.latitude,
+              _southwestCoordinates.longitude,
+            ),
+          ),
+          120.0,
+        ),
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void resetBoolean() {
+    setState(() {
+      markersPinned = false;
+      showPlaceForm = true;
+      matchingConfirmRequest = false;
+    });
+  }
+
+  SafeArea buildLayout(double width, Widget child,
+      {alignment = Alignment.topCenter}) {
+    return SafeArea(
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white70,
+              borderRadius: BorderRadius.all(
+                Radius.circular(20.0),
+              ),
+            ),
+            width: width * 0.9,
+            child: Padding(
+                padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                child: child),
+          ),
+        ),
+      ),
+    );
+  }
+
+  SafeArea buildForm(double width, BuildContext context) {
+    return buildLayout(
+        width,
+        Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+          Text(
+            'Places',
+            style: TextStyle(fontSize: 20.0),
+          ),
+          SizedBox(height: 5),
+          _textField(
+              label: 'Start',
+              hint: 'Choose starting point',
+              prefixIcon: Icon(Icons.location_city_outlined),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.my_location),
+                onPressed: () async {
+                  //  startAddressController.text = _currentAddress;
+                  //  _startAddress = _currentAddress;
+                  final sessionToken = Uuid().v4();
+                  final Suggestion result = await showSearch(
+                    context: context,
+                    delegate: AddressSearch(sessionToken),
+                  );
+                  // This will change the text displayed in the TextField
+                  if (result != null) {
+                    final placeDetails = await PlaceApiProvider(sessionToken)
+                        .getPlaceDetailFromId(result.placeId);
+                    setState(() {
+                      _controller.text = result.description;
+                      _streetNumber = placeDetails.streetNumber;
+                      _street = placeDetails.street;
+                      _city = placeDetails.city;
+                      _zipCode = placeDetails.zipCode;
+                    });
+                  }
+                },
+              ),
+              controller: startAddressController,
+              width: width,
+              locationCallback: (String value) {
+                setState(() {
+                  _startAddress = value;
+                });
+                resetBoolean();
+              }),
+          SizedBox(height: 5),
+          _textField(
+              label: 'Destination',
+              hint: 'Choose destination',
+              prefixIcon: Icon(Icons.location_on_rounded),
+              controller: destinationAddressController,
+              width: width,
+              locationCallback: (String value) {
+                setState(() {
+                  _destinationAddress = value;
+                });
+                resetBoolean();
+              }),
+          SizedBox(height: 5),
+          SizedBox(height: 0),
+          RaisedButton(
+            onPressed: (_startAddress != '' && _destinationAddress != '')
+                ? () async {
+                    await formButtonHandler();
+                  }
+                : null,
+            color: markersPinned ? kPrimaryColor : kSecondaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                !markersPinned
+                    ? 'pin your location'.toUpperCase()
+                    : 'Find your match'.toUpperCase(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.0,
+                ),
+              ),
+            ),
+          ),
+        ]));
+  }
+
+  SafeArea buildDetailBox(double width, BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return buildLayout(
+        width * 0.95,
+        buildDetailConfirmation(size, detailPoints),
+        alignment: Alignment.bottomCenter);
+  }
+
+  Container buildDetailConfirmation(
+    Size size,
+    List<String> waypoints,
+  ) {
+    const dateAndTime = 'date and time';
+    List<String> points = [
+      waypoints[0], null,
+      waypoints[1], null,
+      waypoints[2], null,
+      waypoints[3],
+    ];
+    const partnerFirstname = 'Dreamming';
+    const partnerPhoneNumber = '08xxxxxx';
+    // const status = '';
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 300,
+      ),
+      height: size.height * 0.28,
+      width: size.width - (4 * kDefaultPadding),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 17),
+            blurRadius: 24,
+            spreadRadius: -14,
+            color: kShadowColor,
+          ),
+        ],
+      ),
+      //information
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          //date and time
+          Container(
+            padding: EdgeInsets.only(
+              top: kDefaultPadding,
+              left: kDefaultPadding,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  child: Icon(
+                    FlutterIcons.schedule_mdi,
+                    size: 30,
+                    color: kLightGreyColor,
+                  ),
+                ),
+                Container(
+                    margin: EdgeInsets.only(
+                      left: kDefaultPadding / 2,
+                    ),
+                    child: Text(
+                      dateAndTime,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ))
+              ],
+            ),
+          ),
+          for (var point in points)
+            (point == null
+                ? Container(
+                    margin: EdgeInsets.only(
+                      top: kDefaultPadding / 4,
+                      left: kDefaultPadding + 12.5,
+                    ),
+                    height: 10,
+                    width: 5,
+                    color: kShadowColor,
+                  )
+                : Container(
+                    margin: EdgeInsets.only(
+                      top: kDefaultPadding / 4,
+                      left: kDefaultPadding + 5,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: Icon(
+                            FlutterIcons.radio_button_unchecked_mdi,
+                            size: 20,
+                            color: kLightGreyColor,
+                          ),
+                        ),
+                        Container(
+                          width: 270,
+                          margin: EdgeInsets.only(
+                            left: kDefaultPadding * 0.75,
+                          ),
+                          child: Text(
+                            point,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  )),
+          //start point
+          //partner
+          Container(
+            margin: EdgeInsets.only(
+              top: kDefaultPadding / 4,
+              left: kDefaultPadding,
+            ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              Container(
+                child: Icon(
+                  FlutterIcons.supervisor_account_mdi,
+                  size: 30,
+                  color: kLightGreyColor,
                 ),
               ),
-            ),
+              Container(
+                  width: 265,
+                  margin: EdgeInsets.only(
+                    left: kDefaultPadding * 0.75,
+                  ),
+                  child: Text(
+                    partnerFirstname + " " + partnerPhoneNumber,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ))
+            ]),
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5.0, bottom: 25.0),
-                child: ClipOval(
-                  child: Material(
-                    color: Colors.orange[100], // button color
-                    child: InkWell(
-                      splashColor: Colors.orange, // inkwell color
-                      child: SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: Icon(Icons.my_location),
-                      ),
-                      onTap: () {
-                        mapController.animateCamera(
-                          CameraUpdate.newCameraPosition(
-                            CameraPosition(
-                              target: LatLng(
-                                _currentPosition.latitude,
-                                _currentPosition.longitude,
-                              ),
-                              zoom: 18.0,
-                            ),
-                          ),
-                        );
-                      },
+          Container(
+            // decoration: BoxDecoration(
+            //   color: Colors.blue,
+            // ),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                    color: Colors.red,
+                    onPressed: () {
+                      resetBoolean();
+                    },
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                ),
-              ),
-            ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  RaisedButton(
+                    color: Colors.green,
+                    onPressed: () {
+                      resetBoolean();
+                    },
+                    child: Text(
+                      "Confirm",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ]),
           ),
+          //status
+          // Container(
+          //   margin: EdgeInsets.only(
+          //     top: kDefaultPadding / 4,
+          //     left: kDefaultPadding + 5,
+          //   ),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.start,
+          //     children: [
+          //       Container(
+          //         child: Icon(FlutterIcons.circle_mco,
+          //             size: 20, color: Colors.orange),
+          //       ),
+          //       Container(
+          //           width: 270,
+          //           margin: EdgeInsets.only(
+          //             left: kDefaultPadding * 0.75,
+          //           ),
+          //           child: Text(
+          //             status,
+          //             style: TextStyle(
+          //               fontSize: 16,
+          //               fontWeight: FontWeight.w500,
+          //             ),
+          //           ))
+          //     ],
+          //   ),
+          // ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // destinationAdress = _destinationAddress;
-            // startAddress = _startAddress;
-            // final FirebaseAuth auth = FirebaseAuth.instance;
-            //  Future<void> inputData() async {
-            //                 final User user = auth.currentUser;
-            //                 final uid = user.uid;
-            //                 return await DatabaseServices(uid: user.uid).addingRoutingData(
-            //                   destLat,
-            //                   destLng,
-            //                   destinationAdress,
-            //                   startAddress,
-            //                   startLat,
-            //                   startLng,
-            //                   totalDistance,
-            //                   userID,
-            //                 );
-            //               }
-            // inputData();
-            showDialog(
-              context: context,
-              child: new AlertDialog(
-                title: Text("Confirmation"),
-                content: Container(
-                  //color: Colors.amber,
-                  height: 120,
-                  child: Column(
-                    children: [
-                      Container(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Start: ",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 50,
-                                ),
-                                Text(
-                                  _startAddress,
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Destination: ",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 50,
-                                ),
-                                Text(
-                                  _destinationAddress,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("No"),
-                      ),
-                      FlatButton(
-                        onPressed: () {
-                          destinationAdress = _destinationAddress;
-                          startAddress = _startAddress;
-                          final FirebaseAuth auth = FirebaseAuth.instance;
-                          Future<void> inputData() async {
-                            final User user = auth.currentUser;
-                            final uid = user.uid;
-                            return await DatabaseServices(uid: user.uid)
-                                .addingRoutingData(
-                              destLat,
-                              destLng,
-                              destinationAdress,
-                              startAddress,
-                              startLat,
-                              startLng,
-                              totalDistance,
-                              userID,
-                            );
-                          }
-
-                          inputData();
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ConfirmScreen(
-                                sLat: sLat,
-                                sLng: sLng,
-                                dLat: dLat,
-                                dLng: dLng,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text("Yes"),
-                      ),
-                      // FlatButton(
-                      //   onPressed: () {
-                      //     Navigator.of(context).pop();
-                      //   },
-                      //   child: Text("No"),
-                      // ),
-                    ],
-                  ),
-                ],
-                // Column(
-                //   children: [
-                //     Text("data"),
-                //   ],
-                // ),
-              ),
-            );
-          },
-          child: Icon(Icons.done_all),
-          backgroundColor: Colors.red),
     );
-
-    // Container(
-    //   height: height,
-    //   width: width,
-    //   child: Scaffold(
-    //     key: _scaffoldKey,
-    //     body: Stack(
-    //       children: <Widget>[
-    //         // Map View
-    //         GoogleMap(
-    //           markers: markers != null ? Set<Marker>.from(markers) : null,
-    //           initialCameraPosition: _initialLocation,
-    //           myLocationEnabled: true,
-    //           myLocationButtonEnabled: false,
-    //           mapType: MapType.normal,
-    //           zoomGesturesEnabled: true,
-    //           zoomControlsEnabled: false,
-    //           polylines: Set<Polyline>.of(polylines.values),
-    //           onMapCreated: (GoogleMapController controller) {
-    //             mapController = controller;
-    //           },
-    //         ),
-    //         // Show zoom buttons
-    //         // SafeArea(
-    //         //   child: Padding(
-    //         //     padding: const EdgeInsets.only(left: 10.0),
-    //         //     child: Column(
-    //         //       mainAxisAlignment: MainAxisAlignment.center,
-    //         //       children: <Widget>[
-    //         //         ClipOval(
-    //         //           child: Material(
-    //         //             color: Colors.blue[100], // button color
-    //         //             child: InkWell(
-    //         //               splashColor: Colors.blue, // inkwell color
-    //         //               child: SizedBox(
-    //         //                 width: 50,
-    //         //                 height: 50,
-    //         //                 child: Icon(Icons.add),
-    //         //               ),
-    //         //               onTap: () {
-    //         //                 mapController.animateCamera(
-    //         //                   CameraUpdate.zoomIn(),
-    //         //                 );
-    //         //               },
-    //         //             ),
-    //         //           ),
-    //         //         ),
-    //         //         SizedBox(height: 20),
-    //         //         ClipOval(
-    //         //           child: Material(
-    //         //             color: Colors.blue[100], // button color
-    //         //             child: InkWell(
-    //         //               splashColor: Colors.blue, // inkwell color
-    //         //               child: SizedBox(
-    //         //                 width: 50,
-    //         //                 height: 50,
-    //         //                 child: Icon(Icons.remove),
-    //         //               ),
-    //         //               onTap: () {
-    //         //                 mapController.animateCamera(
-    //         //                   CameraUpdate.zoomOut(),
-    //         //                 );
-    //         //               },
-    //         //             ),
-    //         //           ),
-    //         //         )
-    //         //       ],
-    //         //     ),
-    //         //   ),
-    //         // ),
-    //         // Show the place input fields & button for
-    //         // showing the route
-    //         SafeArea(
-    //           child: Align(
-    //             alignment: Alignment.topCenter,
-    //             child: Padding(
-    //               padding: const EdgeInsets.only(top: 5.0),
-    //               child: Container(
-    //                 decoration: BoxDecoration(
-    //                   color: Colors.white70,
-    //                   borderRadius: BorderRadius.all(
-    //                     Radius.circular(20.0),
-    //                   ),
-    //                 ),
-    //                 width: width * 0.9,
-    //                 child: Padding(
-    //                   padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-    //                   child: Column(
-    //                     mainAxisSize: MainAxisSize.min,
-    //                     children: <Widget>[
-    //                       Text(
-    //                         'Places',
-    //                         style: TextStyle(fontSize: 20.0),
-    //                       ),
-    //                       SizedBox(height: 5),
-    //                       _textField(
-    //                           label: 'Start',
-    //                           hint: 'Choose starting point',
-    //                           prefixIcon: Icon(Icons.looks_one),
-    //                           suffixIcon: IconButton(
-    //                             icon: Icon(Icons.my_location),
-    //                             onPressed: () {
-    //                               startAddressController.text = _currentAddress;
-    //                               _startAddress = _currentAddress;
-    //                             },
-    //                           ),
-    //                           controller: startAddressController,
-    //                           width: width,
-    //                           locationCallback: (String value) {
-    //                             setState(() {
-    //                               _startAddress = value;
-    //                               print(_startAddress);
-    //                             });
-    //                           }),
-    //                       SizedBox(height: 5),
-    //                       _textField(
-    //                           label: 'Destination',
-    //                           hint: 'Choose destination',
-    //                           prefixIcon: Icon(Icons.looks_two),
-    //                           controller: destinationAddressController,
-    //                           width: width,
-    //                           locationCallback: (String value) {
-    //                             setState(() {
-    //                               _destinationAddress = value;
-    //                               print(_destinationAddress);
-    //                             });
-    //                           }),
-    //                       SizedBox(height: 5),
-    //                       Visibility(
-    //                         visible: _placeDistance == null ? false : true,
-    //                         child: Text(
-    //                           'DISTANCE: $_placeDistance km',
-    //                           style: TextStyle(
-    //                             fontSize: 15,
-    //                             fontWeight: FontWeight.bold,
-    //                           ),
-    //                         ),
-    //                       ),
-    //                       SizedBox(height: 0),
-    //                       RaisedButton(
-    //                         onPressed: (_startAddress != '' &&
-    //                                 _destinationAddress != '')
-    //                             ? () async {
-    //                                 setState(() {
-    //                                   if (markers.isNotEmpty) markers.clear();
-    //                                   if (polylines.isNotEmpty)
-    //                                     polylines.clear();
-    //                                   if (polylineCoordinates.isNotEmpty)
-    //                                     polylineCoordinates.clear();
-    //                                   _placeDistance = null;
-    //                                 });
-
-    //                                 _calculateDistance().then((isCalculated) {
-    //                                   if (isCalculated) {
-    //                                     _scaffoldKey.currentState.showSnackBar(
-    //                                       SnackBar(
-    //                                         content: Text(
-    //                                             'Distance Calculated Sucessfully'),
-    //                                       ),
-    //                                     );
-    //                                   } else {
-    //                                     _scaffoldKey.currentState.showSnackBar(
-    //                                       SnackBar(
-    //                                         content: Text(
-    //                                             'Error Calculating Distance'),
-    //                                       ),
-    //                                     );
-    //                                   }
-    //                                 });
-    //                               }
-    //                             : null,
-    //                         color: Colors.red,
-    //                         shape: RoundedRectangleBorder(
-    //                           borderRadius: BorderRadius.circular(5.0),
-    //                         ),
-    //                         child: Padding(
-    //                           padding: const EdgeInsets.all(8.0),
-    //                           child: Text(
-    //                             'Show Route'.toUpperCase(),
-    //                             style: TextStyle(
-    //                               color: Colors.white,
-    //                               fontSize: 15.0,
-    //                             ),
-    //                           ),
-    //                         ),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ),
-    //               ),
-    //             ),
-    //           ),
-    //         ),
-    //         // Show current location button
-    //         SafeArea(
-    //           child: Align(
-    //             alignment: Alignment.bottomLeft,
-    //             child: Padding(
-    //               padding: const EdgeInsets.only(left: 5.0, bottom: 25.0),
-    //               child: ClipOval(
-    //                 child: Material(
-    //                   color: Colors.orange[100], // button color
-    //                   child: InkWell(
-    //                     splashColor: Colors.orange, // inkwell color
-    //                     child: SizedBox(
-    //                       width: 56,
-    //                       height: 56,
-    //                       child: Icon(Icons.my_location),
-    //                     ),
-    //                     onTap: () {
-    //                       mapController.animateCamera(
-    //                         CameraUpdate.newCameraPosition(
-    //                           CameraPosition(
-    //                             target: LatLng(
-    //                               _currentPosition.latitude,
-    //                               _currentPosition.longitude,
-    //                             ),
-    //                             zoom: 18.0,
-    //                           ),
-    //                         ),
-    //                       );
-    //                     },
-    //                   ),
-    //                 ),
-    //               ),
-    //             ),
-    //           ),
-    //         ),
-    //         // Pre-confirmation
-
-    //         // SafeArea(
-    //         //   child: Align(
-    //         //     alignment: Alignment.bottomRight,
-    //         //     child: Padding(
-    //         //       padding: const EdgeInsets.only(right: 5.0, bottom: 5.0),
-    //         //       child: ClipRRect(
-    //         //         child: Material(
-    //         //           color: Colors.red[900], // button color
-    //         //           child: InkWell(
-    //         //             splashColor: Colors.red, // inkwell color
-    //         //             child: SizedBox(
-    //         //               width: 70,
-    //         //               height: 50,
-    //         //               child: Icon(Icons.done_all),
-    //         //             ),
-    //         //             onTap: () {
-    //         //               showDialog(
-    //         //                   context: context,
-    //         //                   child: new AlertDialog(
-    //         //                     title: new Text("Comfirm"),
-    //         //                     content: new Text(
-    //         //                         "From $_startAddress to $_destinationAddress"),
-    //         //                     actions: <Widget>[
-    //         //                       new FlatButton(
-    //         //                         child: new Text("Close"),
-    //         //                         onPressed: () {
-    //         //                           Navigator.of(context).pop();
-    //         //                         },
-    //         //                       ),
-    //         //                       new FlatButton(
-    //         //                         child: new Text("OK"),
-    //         //                         //เมื่อแตะปุ่มจะส่งค่าไปแมท
-    //         //                         onPressed: () async {
-    //         //                           await routeDBS.createItem(
-    //         //                             RouteModel(
-    //         //                               userID: "ddddd",
-    //         //                               startLat: startLat,
-    //         //                               startLng: startLng,
-    //         //                               destLat: destLat,
-    //         //                               destLng: destLng,
-    //         //                               totalDistance: totalDistance,
-    //         //                             ),
-    //         //                           );
-    //         //                           //Navigator.of(context).pop();
-
-    //         //                           print('Distance: $totalDistance');
-    //         //                           // print('START COORDINATES: $startCoordinates');
-    //         //                           print(
-    //         //                               'START COORDINATES: $startLat, $startLng');
-    //         //                           // print('DESTINATION COORDINATES: $destinationCoordinates');
-    //         //                           print(
-    //         //                               'DESTINATION COORDINATES: $destLat, $destLng');
-    //         //                         }, //ส่งไปแมทใน firebase
-    //         //                       ),
-    //         //                     ],
-    //         //                   ));
-    //         //             },
-    //         //           ),
-    //         //         ),
-    //         //       ),
-    //         //     ),
-    //         //   ),
-    //         // ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }
-
-//เมื่อแตะปุ่มจะส่งค่าไปแมท
-// onTap: () async {
-//   await routeDBS.createItem(
-//     RouteModel(
-//       userID: "ddddd",
-//       startLat: startLat,
-//       startLng: startLng,
-//       destLat: destLat,
-//       destLng: destLng,
-//       totalDistance: totalDistance,
-//     ),
-//   );
-//   print('Distance: $totalDistance');
-//   // print('START COORDINATES: $startCoordinates');
-//   print('START COORDINATES: $startLat, $startLng');
-//   // print('DESTINATION COORDINATES: $destinationCoordinates');
-//   print('DESTINATION COORDINATES: $destLat, $destLng');
-// }, //ส่งไปแมทใน firebase

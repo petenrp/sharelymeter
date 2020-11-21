@@ -28,9 +28,9 @@ class _SharelyMeterState extends State<SharelyMeter> {
       bottomNavigationBar: Row(
         children: <Widget>[
           buildNavBarItem(FlutterIcons.home_mdi, 0),
-          buildNavBarItem(FlutterIcons.extension_mdi, 1),
+          // buildNavBarItem(FlutterIcons.extension_mdi, 1),
           buildNavBarItem(FlutterIcons.add_circle_mdi, 2),
-          buildNavBarItem(FlutterIcons.inbox_mdi, 3),
+          // buildNavBarItem(FlutterIcons.inbox_mdi, 3),
           buildNavBarItem(FlutterIcons.account_circle_mdi, 4),
         ],
       ),
@@ -50,7 +50,7 @@ class _SharelyMeterState extends State<SharelyMeter> {
         padding: EdgeInsets.only(
           bottom: kDefaultPadding,
         ),
-        width: MediaQuery.of(context).size.width / 5,
+        width: MediaQuery.of(context).size.width / 3,
         decoration: BoxDecoration(
           //color: index == _selectedItemIndex ? kPrimaryColor: Colors.white,
           color: Colors.white,

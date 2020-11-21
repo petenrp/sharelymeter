@@ -8,16 +8,26 @@ console.log(socket.connected); // false
 socket.on('connect', () => {
   console.log(socket.connected); // true
   socket.emit('userID', 1);
-  socket.emit('request', {
-      src: {
-          lat: 13.6512206,
-          lng: 100.4941857
-      },
-      dest: {
-          lat: 13.662613,
-          lng: 100.437351
-      }
-  });
+//   socket.emit('request', {
+//       src: {
+//           lat: 13.655127, 
+//           lng: 100.498858,
+//       },
+//       dest: {
+//           lat: 13.662462, 
+//           lng: 100.438272,
+//       }
+//   });
+    socket.emit('request', {
+        src: {
+            lat: 13.6494925, 
+            lng: 100.4953804,
+        },
+        dest: {
+            lat: 13.664666, 
+            lng: 100.441415,
+        }
+    });
 });
 
 socket.on('reconnecting', (n) => {
@@ -25,7 +35,7 @@ socket.on('reconnecting', (n) => {
 })
 
 socket.on('result', (result) => {
-    console.log(`We can go with userID: ${result}`);
+    console.log(result);
 });
 
 socket.on('disconnect', () => {
