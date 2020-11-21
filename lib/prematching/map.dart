@@ -67,6 +67,10 @@ class _MapViewState extends State<MapView> {
   String startAddress = '';
   String destinationAdress = '';
 
+  String partner = '';
+  String estimatedPrice = '';
+  String distance = '';
+
   bool markersPinned = false;
   bool showPlaceForm = true;
   bool matchingConfirmRequest = false;
@@ -374,6 +378,7 @@ class _MapViewState extends State<MapView> {
 
   // Create the polylines for showing the route between two places
   _createPolylines(List<Position> positions) async {
+    polylineCoordinates.clear();
     polylinePoints = PolylinePoints();
 
     final start = positions[0];
@@ -424,6 +429,11 @@ class _MapViewState extends State<MapView> {
       this.socket.emit('request',
           '{"src":{"lat":13.6494925,"lng":100.4953804},"dest":{"lat":13.664666,"lng":100.441415}}');
     });
+
+    this.socket.on('cancel', (value) async {
+      resetBoolean();
+    });
+
     this.socket.on('result', (value) async {
       // print(value);
       try {
@@ -438,15 +448,24 @@ class _MapViewState extends State<MapView> {
                 ) as Position)
             ?.toList();
 
+        markers.clear();
+
         positions.forEach((p) async {
           await _pinMarker(p);
         });
 
         await _createPolylines(positions);
 
+        String rDistance = result['distance'];
+        String rEstimatedPrice = result['estimatedPrice'];
+        String rPartner = result['partner'];
+
         setState(() {
           showPlaceForm = false;
           matchingConfirmRequest = true;
+          distance = rDistance;
+          estimatedPrice = rEstimatedPrice;
+          partner = rPartner;
         });
       } catch (e) {
         print(e);
@@ -877,12 +896,18 @@ class _MapViewState extends State<MapView> {
 
   SafeArea buildDetailBox(double width, BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return buildLayout(
-        width * 0.95, buildDetailConfirmation(size, detailPoints),
-        alignment: Alignment.bottomCenter);
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: kDefaultPadding * 0.5),
+          child: buildDetailConfirmation(size, detailPoints),
+        ),
+      ),
+    );
   }
 
-  Container buildDetailConfirmation(
+  Widget buildDetailConfirmation(
     Size size,
     List<String> waypoints,
   ) {
@@ -896,192 +921,246 @@ class _MapViewState extends State<MapView> {
       null,
       waypoints[3],
     ];
-    const partnerFirstname = 'Panusron';
-    const partnerPhoneNumber = '0800420423';
     // const status = '';
-    return Container(
-      constraints: BoxConstraints(
-        minHeight: 300,
-      ),
-      height: size.height * 0.28,
-      width: size.width - (4 * kDefaultPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 17),
-            blurRadius: 24,
-            spreadRadius: -14,
-            color: kShadowColor,
-          ),
-        ],
-      ),
-      //information
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          //date and time
-          Container(
-            padding: EdgeInsets.only(
-              top: kDefaultPadding,
-              left: kDefaultPadding,
+    return Wrap(children: [
+      Container(
+        constraints: BoxConstraints(
+          minHeight: 350,
+        ),
+        // height: size.height * 0.28,
+        width: size.width - (4 * kDefaultPadding),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          // boxShadow: [
+          //   BoxShadow(
+          //     offset: Offset(0, 17),
+          //     blurRadius: 24,
+          //     spreadRadius: -14,
+          //     color: kShadowColor,
+          //   ),
+          // ],
+        ),
+        //information
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            //date and time
+            Container(
+              padding: EdgeInsets.only(
+                top: kDefaultPadding,
+                left: kDefaultPadding,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    child: Icon(
+                      FlutterIcons.schedule_mdi,
+                      size: 30,
+                      color: kLightGreyColor,
+                    ),
+                  ),
+                  Container(
+                      margin: EdgeInsets.only(
+                        left: kDefaultPadding / 2,
+                      ),
+                      child: Text(
+                        dateAndTime,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      ))
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
+            for (var point in points)
+              (point == null
+                  ? Container(
+                      margin: EdgeInsets.only(
+                        top: kDefaultPadding / 4,
+                        left: kDefaultPadding + 12.5,
+                      ),
+                      height: 5,
+                      width: 5,
+                      color: kShadowColor,
+                    )
+                  : Container(
+                      margin: EdgeInsets.only(
+                        top: kDefaultPadding / 4,
+                        left: kDefaultPadding + 5,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Icon(
+                              FlutterIcons.radio_button_unchecked_mdi,
+                              size: 20,
+                              color: kLightGreyColor,
+                            ),
+                          ),
+                          Container(
+                            width: 270,
+                            margin: EdgeInsets.only(
+                              left: kDefaultPadding * 0.75,
+                            ),
+                            child: Text(
+                              point,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+            //partner
+            Container(
+              margin: EdgeInsets.only(
+                top: kDefaultPadding / 4,
+                left: kDefaultPadding,
+              ),
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                 Container(
                   child: Icon(
-                    FlutterIcons.schedule_mdi,
+                    FlutterIcons.supervisor_account_mdi,
                     size: 30,
                     color: kLightGreyColor,
                   ),
                 ),
                 Container(
+                    width: 265,
                     margin: EdgeInsets.only(
-                      left: kDefaultPadding / 2,
+                      left: kDefaultPadding * 0.75,
                     ),
                     child: Text(
-                      dateAndTime,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      partner,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ))
-              ],
+              ]),
             ),
-          ),
-          for (var point in points)
-            (point == null
-                ? Container(
-                    margin: EdgeInsets.only(
-                      top: kDefaultPadding / 4,
-                      left: kDefaultPadding + 12.5,
-                    ),
-                    height: 10,
-                    width: 5,
-                    color: kShadowColor,
-                  )
-                : Container(
-                    margin: EdgeInsets.only(
-                      top: kDefaultPadding / 4,
-                      left: kDefaultPadding + 5,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: Icon(
-                            FlutterIcons.radio_button_unchecked_mdi,
-                            size: 20,
-                            color: kLightGreyColor,
-                          ),
-                        ),
-                        Container(
-                          width: 270,
-                          margin: EdgeInsets.only(
-                            left: kDefaultPadding * 0.75,
-                          ),
-                          child: Text(
-                            point,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-          //start point
-          //partner
-          Container(
-            margin: EdgeInsets.only(
-              top: kDefaultPadding / 4,
-              left: kDefaultPadding,
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Container(
-                child: Icon(
-                  FlutterIcons.supervisor_account_mdi,
-                  size: 30,
-                  color: kLightGreyColor,
-                ),
+            // Cost
+            Container(
+              margin: EdgeInsets.only(
+                top: kDefaultPadding / 4,
+                left: kDefaultPadding,
               ),
-              Container(
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Container(
+                  child: Icon(
+                    FlutterIcons.car_alt_faw5s,
+                    size: 30,
+                    color: kLightGreyColor,
+                  ),
+                ),
+                Container(
                   width: 265,
                   margin: EdgeInsets.only(
                     left: kDefaultPadding * 0.75,
                   ),
                   child: Text(
-                    partnerFirstname + " | " + partnerPhoneNumber,
+                    distance,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
-                  ))
-            ]),
-          ),
-          Container(
-            // decoration: BoxDecoration(
-            //   color: Colors.blue,
+                  ),
+                )
+              ]),
+            ),
+            // Cost
+            Container(
+              margin: EdgeInsets.only(
+                top: kDefaultPadding / 4,
+                left: kDefaultPadding,
+              ),
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Container(
+                  child: Icon(
+                    FlutterIcons.money_bill_alt_faw5,
+                    size: 30,
+                    color: kLightGreyColor,
+                  ),
+                ),
+                Container(
+                  width: 265,
+                  margin: EdgeInsets.only(
+                    left: kDefaultPadding * 0.75,
+                  ),
+                  child: Text(
+                    estimatedPrice,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                )
+              ]),
+            ),
+            Container(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    RaisedButton(
+                      color: Colors.red,
+                      onPressed: () {
+                        resetBoolean();
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    RaisedButton(
+                      color: Colors.green,
+                      onPressed: () {
+                        resetBoolean();
+                      },
+                      child: Text(
+                        "Confirm",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ]),
+            ),
+            //status
+            // Container(
+            //   margin: EdgeInsets.only(
+            //     top: kDefaultPadding / 4,
+            //     left: kDefaultPadding + 5,
+            //   ),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.start,
+            //     children: [
+            //       Container(
+            //         child: Icon(FlutterIcons.circle_mco,
+            //             size: 20, color: Colors.orange),
+            //       ),
+            //       Container(
+            //           width: 270,
+            //           margin: EdgeInsets.only(
+            //             left: kDefaultPadding * 0.75,
+            //           ),
+            //           child: Text(
+            //             status,
+            //             style: TextStyle(
+            //               fontSize: 16,
+            //               fontWeight: FontWeight.w500,
+            //             ),
+            //           ))
+            //     ],
+            //   ),
             // ),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                    color: Colors.red,
-                    onPressed: () {
-                      resetBoolean();
-                    },
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  RaisedButton(
-                    color: Colors.green,
-                    onPressed: () {
-                      resetBoolean();
-                    },
-                    child: Text(
-                      "Confirm",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ]),
-          ),
-          //status
-          // Container(
-          //   margin: EdgeInsets.only(
-          //     top: kDefaultPadding / 4,
-          //     left: kDefaultPadding + 5,
-          //   ),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.start,
-          //     children: [
-          //       Container(
-          //         child: Icon(FlutterIcons.circle_mco,
-          //             size: 20, color: Colors.orange),
-          //       ),
-          //       Container(
-          //           width: 270,
-          //           margin: EdgeInsets.only(
-          //             left: kDefaultPadding * 0.75,
-          //           ),
-          //           child: Text(
-          //             status,
-          //             style: TextStyle(
-          //               fontSize: 16,
-          //               fontWeight: FontWeight.w500,
-          //             ),
-          //           ))
-          //     ],
-          //   ),
-          // ),
-        ],
+          ],
+        ),
       ),
-    );
+    ]);
   }
 }
