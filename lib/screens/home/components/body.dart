@@ -48,13 +48,13 @@ class Body extends StatelessWidget {
                         Container(
                           child: ScheduleRide(
                             size: size,
-                            dateAndTime: "18-12-2020, 18:00",
+                            dateAndTime: "08-12-2020, 10:00",
                             startPoint:
                                 "King's Mongkutt University of Technology Thonburi",
                             destinationPoint:
-                                "King's Mongkutt University of Technology Thonburi",
-                            partnerFirstname: "Naruhpak",
-                            partnerPhoneNumber: "0984787891",
+                                "Central Rama II",
+                            partnerFirstname: "Panusron",
+                            partnerPhoneNumber: "0800420423",
                             status: "On waiting",
                             press: () {},
                           ),

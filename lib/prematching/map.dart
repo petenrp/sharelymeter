@@ -379,19 +379,24 @@ class _MapViewState extends State<MapView> {
     final start = positions[0];
     final destination = positions[3];
 
-    final point2 = '' + positions[1].latitude.toString() + ',' + positions[1].longitude.toString();
-    final point3 = '' + positions[2].latitude.toString() + ',' + positions[2].longitude.toString();
+    final point2 = '' +
+        positions[1].latitude.toString() +
+        ',' +
+        positions[1].longitude.toString();
+    final point3 = '' +
+        positions[2].latitude.toString() +
+        ',' +
+        positions[2].longitude.toString();
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      GmapAPI.API_KEY, // Google Maps API Key
-      PointLatLng(start.latitude, start.longitude),
-      PointLatLng(destination.latitude, destination.longitude),
-      travelMode: TravelMode.driving,
-      wayPoints: [
-        PolylineWayPoint(location: point2),
-        PolylineWayPoint(location: point3),
-      ]
-    );
+        GmapAPI.API_KEY, // Google Maps API Key
+        PointLatLng(start.latitude, start.longitude),
+        PointLatLng(destination.latitude, destination.longitude),
+        travelMode: TravelMode.driving,
+        wayPoints: [
+          PolylineWayPoint(location: point2),
+          PolylineWayPoint(location: point3),
+        ]);
 
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
@@ -416,27 +421,29 @@ class _MapViewState extends State<MapView> {
 
     this.socket.on('connect', (_) {
       print('Connected');
-      this.socket.emit('request', '{"src":{"lat":13.6494925,"lng":100.4953804},"dest":{"lat":13.664666,"lng":100.441415}}');
+      this.socket.emit('request',
+          '{"src":{"lat":13.6494925,"lng":100.4953804},"dest":{"lat":13.664666,"lng":100.441415}}');
     });
     this.socket.on('result', (value) async {
       // print(value);
       try {
         Map<String, dynamic> result = jsonDecode(value);
-        detailPoints = 
-          (result['points'] as List)?.map((item) => item as String)?.toList();
+        detailPoints =
+            (result['points'] as List)?.map((item) => item as String)?.toList();
 
-        List<Position> positions = 
-          (result['path'] as List)?.map((item) => Position(
-              latitude: item['lat'] as double,
-              longitude: item['lng'] as double,
-          ) as Position)?.toList();
+        List<Position> positions = (result['path'] as List)
+            ?.map((item) => Position(
+                  latitude: item['lat'] as double,
+                  longitude: item['lng'] as double,
+                ) as Position)
+            ?.toList();
 
         positions.forEach((p) async {
           await _pinMarker(p);
         });
 
         await _createPolylines(positions);
-        
+
         setState(() {
           showPlaceForm = false;
           matchingConfirmRequest = true;
@@ -857,7 +864,7 @@ class _MapViewState extends State<MapView> {
               child: Text(
                 !markersPinned
                     ? 'pin your location'.toUpperCase()
-                    : 'Find your match'.toUpperCase(),
+                    : 'find your match'.toUpperCase(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 15.0,
@@ -871,8 +878,7 @@ class _MapViewState extends State<MapView> {
   SafeArea buildDetailBox(double width, BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return buildLayout(
-        width * 0.95,
-        buildDetailConfirmation(size, detailPoints),
+        width * 0.95, buildDetailConfirmation(size, detailPoints),
         alignment: Alignment.bottomCenter);
   }
 
@@ -882,13 +888,16 @@ class _MapViewState extends State<MapView> {
   ) {
     const dateAndTime = 'date and time';
     List<String> points = [
-      waypoints[0], null,
-      waypoints[1], null,
-      waypoints[2], null,
+      waypoints[0],
+      null,
+      waypoints[1],
+      null,
+      waypoints[2],
+      null,
       waypoints[3],
     ];
-    const partnerFirstname = 'Dreamming';
-    const partnerPhoneNumber = '08xxxxxx';
+    const partnerFirstname = 'Panusron';
+    const partnerPhoneNumber = '0800420423';
     // const status = '';
     return Container(
       constraints: BoxConstraints(
@@ -1003,7 +1012,7 @@ class _MapViewState extends State<MapView> {
                     left: kDefaultPadding * 0.75,
                   ),
                   child: Text(
-                    partnerFirstname + " " + partnerPhoneNumber,
+                    partnerFirstname + " | " + partnerPhoneNumber,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
