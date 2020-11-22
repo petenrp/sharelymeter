@@ -24,7 +24,7 @@ const getQuery = (socket, type, position) => {
                 //   { lat: 13.662462, lng: 100.438272 }, Cen 2
                 //   { lat: 13.664666, lng: 100.441415 } Green Night Market
                 ],
-                estimatedPrice: '120 บาท',
+                estimatedPrice: '135 บาท',
                 points: [ 
                     'KMUTT', 
                     'The Cube', 

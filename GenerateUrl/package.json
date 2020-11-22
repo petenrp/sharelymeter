@@ -5,6 +5,6 @@
     "open": "^7.3.0"
   },
   "scripts": {
-    "run": "node index.js"
+    "run": "node request.js"
   }
 }

@@ -34,6 +34,34 @@ import 'package:sharelymeter/prematching/place_service.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
+enum MatchingStatus {
+  WaitingForMatching,
+  RequestConfirmation,
+  WaitingForConfirmation,
+  NoOneOnTaxiYet,
+  OneUserOnTaxi,
+  TwoUserOnTaxi,
+  OneUserDownTaxi,
+  TwoUserDownTaxi,
+}
+
+enum PointStatus {
+  Unreached,
+  Reached
+}
+
+class PointFare {
+  PointFare(
+    this.status,
+    this.text,
+    this.fare,
+  );
+
+  String text;
+  int fare;
+  PointStatus status;
+}
+
 class MapView extends StatefulWidget {
   static const route = '/pre-matching';
   final double sLat;
@@ -50,6 +78,7 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   BitmapDescriptor partnerIcon;
   Marker partnerMarker;
+  MatchingStatus travelingStatus = MatchingStatus.RequestConfirmation;
 
   //test
   final RouteModel route;
@@ -68,8 +97,15 @@ class _MapViewState extends State<MapView> {
   String _destinationAddress = 'Central rama 2';
   String _placeDistance = '';
 
+  int _taxiMetreFare = 0;
+
+  List<int> travelingFares = [];
+  List<PointStatus> pointStatuses = [];
+
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
+
+  final metreFareController = TextEditingController();
 
   String startAddress = '';
   String destinationAdress = '';
@@ -80,9 +116,9 @@ class _MapViewState extends State<MapView> {
 
   bool markersPinned = false;
   bool showPlaceForm = true;
-  bool matchingConfirmRequest = false;
-  bool showMatchingInProcess = false;
-  bool pendingForMatchConfirmation = false;
+  bool showTravelingDetail = false;
+  bool matchingConfirmed = false;
+  bool userOnTaxi = false;
 
   double sLat = 0;
   double sLng = 0;
@@ -127,18 +163,19 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  Widget _textField({
-    TextEditingController controller,
-    String label,
-    String hint,
-    double width,
-    Icon prefixIcon,
-    Widget suffixIcon,
-    Function(String) locationCallback,
-  }) {
+  Widget _textField(
+      {TextEditingController controller,
+      String label,
+      String hint,
+      double width,
+      Icon prefixIcon,
+      Widget suffixIcon,
+      Function(String) locationCallback,
+      TextInputType keyboardType = TextInputType.text}) {
     return Container(
       width: width * 0.8,
       child: TextField(
+        keyboardType: keyboardType,
         onChanged: (value) {
           locationCallback(value);
         },
@@ -461,11 +498,25 @@ class _MapViewState extends State<MapView> {
     setState(() {
       partnerMarker = newMarker;
     });
-    
+  }
+
+  Future<void> confirmTaxiMetre(value) async {
+    Map<String, dynamic> decoded = jsonDecode(value);
+    int taxi = decoded["taxi"] as int;
+    buildTaxiMetreConfirmationDialog(
+        this.context, "Confirm Taxi Metre", taxi.toString());
   }
 
   void onResult(value) async {
     Map<String, dynamic> result = jsonDecode(value);
+    travelingFares = [-1, -1, -1, -1];
+    pointStatuses = [
+      PointStatus.Unreached,
+      PointStatus.Unreached,
+      PointStatus.Unreached,
+      PointStatus.Unreached,
+    ];
+
     detailPoints =
         (result['points'] as List)?.map((item) => item as String)?.toList();
 
@@ -502,7 +553,8 @@ class _MapViewState extends State<MapView> {
     double dy = rightMost - leftMost;
     double dx = topMost - bottomMost;
 
-    double offset = -pow(dy / dx, 0.35) * 0.06 - 0.065;
+    double offset = -pow(dy / dx, 0.225) * 0.099 + 0.025;
+    // - 0.065;
     double padding = 80 + 22.8 * pow(dy / dx, 1);
 
     print(offset);
@@ -534,7 +586,8 @@ class _MapViewState extends State<MapView> {
     resetBoolean();
     setState(() {
       showPlaceForm = false;
-      matchingConfirmRequest = true;
+      showTravelingDetail = true;
+      travelingStatus = MatchingStatus.RequestConfirmation;
       distance = rDistance;
       estimatedPrice = rEstimatedPrice;
       partner = rPartner;
@@ -550,8 +603,91 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<void> serverCancelMatching() async {
-    buildInformationDialog(this.context, "Information", "Partner has canceled the matching.");
+    buildInformationDialog(
+        this.context, "Information", "Partner has canceled the matching.");
+    // _scaffoldKey.currentState.showSnackBar(
+    //   SnackBar(
+    //     content: Text(
+    //         'Partner has canceled the matching'),
+    //   ),
+    // );
     cancelMatching();
+  }
+
+  Future<void> showTaxiMetreDialog() async {
+    buildTaxiMetreDialog(this.context, "Taxi Metre", "Please ");
+  }
+
+  void noOneOnTaxi() {
+    setState((){
+      userOnTaxi = false;
+      travelingStatus = MatchingStatus.NoOneOnTaxiYet;
+    });
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(
+          'Matching Confirmed',
+        ),
+      ),
+    );
+  }
+
+  void oneUserOnTaxi(bool isYou, int taxi) {
+    setState(() {
+      travelingStatus = MatchingStatus.OneUserOnTaxi;
+      if(isYou) {
+        userOnTaxi = true;
+      }
+      pointStatuses[0] = PointStatus.Reached;
+      travelingFares[0] = taxi;
+    });
+  }
+
+  void twoUserOnTaxi(bool isYou, int taxi) {
+    setState(() {
+      travelingStatus = MatchingStatus.TwoUserOnTaxi;
+      if(isYou) {
+        userOnTaxi = true;
+      }
+      pointStatuses[1] = PointStatus.Reached;
+      travelingFares[1] = taxi;
+    });
+  }
+
+  void oneUserDownTaxi(bool isYou, int taxi) {
+    setState(() {
+      travelingStatus = MatchingStatus.OneUserDownTaxi;
+      if(isYou) {
+        userOnTaxi = false;
+      }
+      pointStatuses[2] = PointStatus.Reached;
+      travelingFares[2] = taxi;
+    });
+  }
+
+  Future<void> setStatus(value) async {
+    Map<String, dynamic> decoded = jsonDecode(value);
+    String status = decoded['status'] as String;
+    switch (status) {
+      case 'no_one_on_taxi':
+        noOneOnTaxi();
+        return;
+      case 'one_user_on_taxi':
+        bool isYou = decoded['isYou'] as bool;
+        int taxi = decoded['taxi'] as int;
+        oneUserOnTaxi(isYou, taxi);
+        return;
+      case 'two_user_on_taxi':
+        bool isYou = decoded['isYou'] as bool;
+        int taxi = decoded['taxi'] as int;
+        twoUserOnTaxi(isYou, taxi);
+        return;
+      case 'one_user_down_taxi':
+        bool isYou = decoded['isYou'] as bool;
+        int taxi = decoded['taxi'] as int;
+        oneUserDownTaxi(isYou, taxi);
+        return;
+    }
   }
 
   @override
@@ -587,6 +723,22 @@ class _MapViewState extends State<MapView> {
       }
     });
 
+    this.socket.on('confirm_metre', (value) async {
+      try {
+        await confirmTaxiMetre(value);
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    this.socket.on('status', (value) async {
+      try {
+        setStatus(value);
+      } catch (e) {
+        print(e);
+      }
+    });
+
     this.socket.connect();
   }
 
@@ -614,9 +766,10 @@ class _MapViewState extends State<MapView> {
           ),
           // showing the route
           showPlaceForm ? buildForm(width, context) : Text(""),
-          showMatchingInProcess ? buildMatchingInProcess() : Text(""),
+          travelingStatus == MatchingStatus.WaitingForMatching
+            ? buildMatchingInProcess() : Text(""),
           // buildButtons(),
-          matchingConfirmRequest ? buildDetailBox(width, context) : Text(""),
+          showTravelingDetail ? buildDetailBox(width, context) : Text(""),
         ],
       ),
       // floatingActionButton: buildFloatingActionButton(context),
@@ -647,7 +800,95 @@ class _MapViewState extends State<MapView> {
   //       backgroundColor: Colors.red);
   // }
 
-  buildInformationDialog(BuildContext context, String title, String content) async {
+  buildTaxiMetreConfirmationDialog(
+      BuildContext context, String title, String content) async {
+    Size size = MediaQuery.of(context).size;
+    showDialog(
+      context: context,
+      child: new AlertDialog(
+        title: Text(title),
+        content: Wrap(
+          direction: Axis.vertical,
+          children: [
+            Container(
+              child: Text("The current taxi metre is " + content),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlatButton(
+                color: Colors.red,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Cancel"),
+              ),
+              SizedBox(width: 20),
+              FlatButton(
+                color: kPrimaryColor,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Confirm"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  buildTaxiMetreDialog(
+      BuildContext context, String title, String content) async {
+    Size size = MediaQuery.of(context).size;
+    showDialog(
+      context: context,
+      child: new AlertDialog(
+        title: Text(title),
+        content: Wrap(
+          direction: Axis.vertical,
+          children: [
+            Container(
+              child: Text(content),
+            ),
+            _textField(
+                label: 'Taxi Metre Fare',
+                hint: 'Please Enter Meter Fare',
+                prefixIcon: Icon(Icons.local_taxi_rounded),
+                controller: metreFareController,
+                width: size.width * 0.75,
+                locationCallback: (String value) {
+                  setState(() {
+                    _taxiMetreFare = int.parse(value);
+                  });
+                },
+                keyboardType: TextInputType.number),
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  buildInformationDialog(
+      BuildContext context, String title, String content) async {
     showDialog(
       context: context,
       child: new AlertDialog(
@@ -717,12 +958,13 @@ class _MapViewState extends State<MapView> {
 
   Future<void> formButtonHandler() async {
     if (!markersPinned) {
+      // pin mark
       await pinMarkersByAddresses();
     } else {
-      print("Finding Match");
+      // find match
       setState(() {
         showPlaceForm = false;
-        showMatchingInProcess = true;
+        travelingStatus = MatchingStatus.WaitingForMatching;
         // matchingConfirmRequest = true;
       });
     }
@@ -804,9 +1046,8 @@ class _MapViewState extends State<MapView> {
     setState(() {
       markersPinned = false;
       showPlaceForm = true;
-      showMatchingInProcess = false;
-      matchingConfirmRequest = false;
-      pendingForMatchConfirmation = false;
+      showTravelingDetail = false;
+      travelingStatus = MatchingStatus.RequestConfirmation;
     });
   }
 
@@ -836,8 +1077,10 @@ class _MapViewState extends State<MapView> {
 
   SafeArea buildForm(double width, BuildContext context) {
     return buildLayout(
-        width,
-        Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      width,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
           Text(
             'Places',
             style: TextStyle(fontSize: 20.0),
@@ -917,7 +1160,9 @@ class _MapViewState extends State<MapView> {
               ),
             ),
           ),
-        ]));
+        ],
+      ),
+    );
   }
 
   SafeArea buildDetailBox(double width, BuildContext context) {
@@ -927,7 +1172,7 @@ class _MapViewState extends State<MapView> {
         alignment: Alignment.bottomCenter,
         child: Padding(
           padding: EdgeInsets.only(bottom: kDefaultPadding * 0.5),
-          child: buildDetailConfirmation(size, detailPoints),
+          child: buildTravelingDetail(size, pointStatuses, detailPoints, travelingFares),
         ),
       ),
     );
@@ -939,21 +1184,101 @@ class _MapViewState extends State<MapView> {
     resetBoolean();
   }
 
-  Widget buildDetailConfirmation(
+  Widget buildTravelingDetail(
     Size size,
+    List<PointStatus> status,
     List<String> waypoints,
+    List<int> fares,
   ) {
     const dateAndTime = 'date and time';
-    List<String> points = [
-      waypoints[0],
+    List<PointFare> points = [
+      PointFare(status[0], waypoints[0], fares[0]),
       null,
-      waypoints[1],
+      PointFare(status[1], waypoints[1], fares[1]),
       null,
-      waypoints[2],
+      PointFare(status[2], waypoints[2], fares[2]),
       null,
-      waypoints[3],
+      PointFare(status[3], waypoints[3], fares[3]),
     ];
     // const status = '';
+
+    List<Widget> actions = [];
+    if (travelingStatus == MatchingStatus.RequestConfirmation) {
+      actions = [
+        RaisedButton(
+          color: Colors.red,
+          onPressed: () {
+            cancelMatching();
+          },
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        SizedBox(
+          width: 20,
+        ),
+        RaisedButton(
+          color: Colors.green,
+          onPressed: () {
+            // resetBoolean();
+            setState(() {
+              travelingStatus = MatchingStatus.WaitingForConfirmation;
+            });
+          },
+          child: Text(
+            "Confirm",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ];
+    } else if (travelingStatus == MatchingStatus.WaitingForConfirmation) {
+      actions = <Widget>[
+        RaisedButton(
+          color: Colors.red,
+          onPressed: () {
+            cancelMatching();
+          },
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ];
+    } else {
+
+      String buttonText = "";
+      bool disabled = false;
+      
+      if (userOnTaxi) {
+        buttonText = "Get Down";
+        if(travelingStatus == MatchingStatus.OneUserOnTaxi) {
+          disabled = true;
+        }
+      } else {
+        if(travelingStatus == MatchingStatus.OneUserDownTaxi
+          || travelingStatus == MatchingStatus.TwoUserDownTaxi) {
+          buttonText = "Done";
+        } else {
+          buttonText = "Get In";
+        }
+      }
+
+      actions = <Widget>[
+        RaisedButton(
+          color: kPrimaryColor,
+          onPressed: disabled ? null : () {
+            // Get In Taxi
+          },
+          child: Text(
+            buttonText,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ];
+    }
+
+
     return Wrap(children: [
       Container(
         constraints: BoxConstraints(
@@ -1026,24 +1351,37 @@ class _MapViewState extends State<MapView> {
                         children: [
                           Container(
                             child: Icon(
-                              FlutterIcons.radio_button_unchecked_mdi,
+                              FlutterIcons.radio_button_checked_mdi,
                               size: 20,
-                              color: kLightGreyColor,
+                              color: point.status == PointStatus.Unreached 
+                                ? kLightGreyColor: Colors.green,
                             ),
                           ),
                           Container(
-                            width: 270,
-                            margin: EdgeInsets.only(
-                              left: kDefaultPadding * 0.75,
-                            ),
-                            child: Text(
-                              point,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                              width: 250,
+                              margin: EdgeInsets.only(
+                                left: kDefaultPadding * 0.75,
+                                right: kDefaultPadding * 0.75,
                               ),
-                            ),
-                          ),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      point.text,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      point.fare == -1? '???': point.fare.toString() + ' Baht',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ])),
                         ],
                       ),
                     )),
@@ -1133,50 +1471,11 @@ class _MapViewState extends State<MapView> {
                 )
               ]),
             ),
+            // Actions
             Container(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: !pendingForMatchConfirmation
-                    ? <Widget>[
-                        RaisedButton(
-                          color: Colors.red,
-                          onPressed: () {
-                            cancelMatching();
-                          },
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        RaisedButton(
-                          color: Colors.green,
-                          onPressed: () {
-                            // resetBoolean();
-                            setState(() {
-                              pendingForMatchConfirmation = true;
-                            });
-                          },
-                          child: Text(
-                            "Confirm",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ]
-                    : <Widget>[
-                        RaisedButton(
-                          color: Colors.red,
-                          onPressed: () {
-                            cancelMatching();
-                          },
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
+                children: actions,
               ),
             ),
             //status

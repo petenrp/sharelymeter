@@ -57,8 +57,10 @@ const getQuery = (socket, type, position) => {
         const socket = aliveSocket[0].socket;
 
         
-        let lat = 13.651785;
+        let lat = 13.690785;
         let lng = 100.547337;
+
+        // { lat: 13.690785, lng: 100.547337 },
 
         for(var i =0; i <= 1; i++) {
             const result = url.format({
