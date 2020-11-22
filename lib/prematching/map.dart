@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 // Stores the Google Maps API Key
 import 'package:sharelymeter/googlemapapi.dart';
@@ -10,6 +12,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import '../models/route.dart';
 import 'package:sharelymeter/shared/constants.dart';
+import 'dart:math';
+import 'dart:ui' as ui;
 
 import '../screens/add/component/confirm_screen.dart';
 
@@ -44,6 +48,10 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+
+  BitmapDescriptor partnerIcon;
+  Marker partnerMarker;
+
   //test
   final RouteModel route;
   _MapViewState({this.route, this.sLat, this.sLng, this.dLat, this.dLng});
@@ -74,7 +82,8 @@ class _MapViewState extends State<MapView> {
   bool markersPinned = false;
   bool showPlaceForm = true;
   bool matchingConfirmRequest = false;
-  bool showCancelForm = false;
+  bool showMatchingInProcess = false;
+  bool pendingForMatchConfirmation = false;
 
   double sLat = 0;
   double sLng = 0;
@@ -165,6 +174,13 @@ class _MapViewState extends State<MapView> {
       ),
     );
   }
+  
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png)).buffer.asUint8List();
+  }
 
   // Method for retrieving the current location
   _getCurrentLocation() async {
@@ -211,10 +227,14 @@ class _MapViewState extends State<MapView> {
     return null;
   }
 
-  Future<void> _pinMarker(Position position,
-      {title = '', address = '', icon = BitmapDescriptor.defaultMarker}) async {
+  Future<Marker> _pinMarker(Position position,
+      {title = '', address = '', icon = BitmapDescriptor.defaultMarker,
+      zIndex = 0.0, String id = '' }) async {
+    if (id == '') id = '$position' ;
+    markers.removeWhere((e) => e.markerId.value == id);
+
     Marker marker = Marker(
-      markerId: MarkerId('$position'),
+      markerId: MarkerId(id),
       position: LatLng(
         position.latitude,
         position.longitude,
@@ -224,10 +244,13 @@ class _MapViewState extends State<MapView> {
         snippet: address,
       ),
       icon: icon,
+      zIndex: zIndex,
     );
 
     print('added');
     markers.add(marker);
+    setState((){});
+    return marker;
   }
 
   // Method for calculating the distance between two places
@@ -419,10 +442,116 @@ class _MapViewState extends State<MapView> {
     polylines[id] = polyline;
   }
 
+  Future<void> onPartnerMove(value) async {
+    Map<String, dynamic> result = jsonDecode(value);
+    print('pinning');
+
+    double lat = result['lat'] as double;
+    double lng = result['lng'] as double;
+
+    for(var i = 100000; i > 0; i --) {
+      Position newPosition = Position(latitude: lat, longitude: lng);
+
+      Marker newMarker = await _pinMarker(newPosition, icon: partnerIcon, zIndex: 1.0, id: 'player');
+      setState(() {
+        partnerMarker = newMarker;
+      });
+
+      lat += 0.00001;
+      await Future.delayed(Duration(milliseconds: 5));
+    }
+    
+  }
+
+  void onResult(value) async {
+    Map<String, dynamic> result = jsonDecode(value);
+    detailPoints =
+        (result['points'] as List)?.map((item) => item as String)?.toList();
+
+    List<Position> positions = (result['path'] as List)
+        ?.map((item) => Position(
+              latitude: item['lat'] as double,
+              longitude: item['lng'] as double,
+            ) as Position)
+        ?.toList();
+
+    markers.clear();
+
+    positions.forEach((p) async {
+      await _pinMarker(p);
+    });
+
+    await _createPolylines(positions);
+
+    double rightMost;
+    double leftMost;
+    double topMost;
+    double bottomMost;
+
+    positions.sort((a, b) => a.latitude.compareTo(b.latitude));
+
+    rightMost = positions[3].latitude;
+    leftMost = positions[0].latitude;
+
+    positions.sort((a, b) => a.longitude.compareTo(b.longitude));
+
+    topMost = positions[3].longitude;
+    bottomMost = positions[0].longitude;
+
+    double dy = rightMost - leftMost;
+    double dx = topMost - bottomMost;
+
+    double offset = - pow(dy/dx, 0.35) * 0.06 - 0.065;
+    double padding = 80 + 22.8 * pow(dy/dx, 1);
+
+    print(offset);
+    print(padding);
+    print(dy);
+    
+    // Accommodate the two locations within the
+    // camera view of the map
+    await mapController.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          northeast: LatLng(
+            rightMost + offset,
+            topMost,
+          ),
+          southwest: LatLng(
+            leftMost + offset,
+            bottomMost,
+          ),
+        ),
+        padding,
+      ),
+    );
+
+    String rDistance = result['distance'];
+    String rEstimatedPrice = result['estimatedPrice'];
+    String rPartner = result['partner'];
+
+    resetBoolean();
+    setState(() {
+      showPlaceForm = false;
+      matchingConfirmRequest = true;
+      distance = rDistance;
+      estimatedPrice = rEstimatedPrice;
+      partner = rPartner;
+    });
+  }
+
+  Future<void> setPartnerIcon() async {
+    final Uint8List markerIcon = await getBytesFromAsset('assets/images/partner.png', 100);
+    setState(() {
+      partnerIcon = BitmapDescriptor.fromBytes(markerIcon);
+    });
+  }
+
   @override
-  void initState() {
+  void initState()  {
     super.initState();
-    _getCurrentLocation();
+    // _getCurrentLocation();
+    setPartnerIcon();
 
     this.socket.on('connect', (_) {
       print('Connected');
@@ -437,37 +566,16 @@ class _MapViewState extends State<MapView> {
     this.socket.on('result', (value) async {
       // print(value);
       try {
-        Map<String, dynamic> result = jsonDecode(value);
-        detailPoints =
-            (result['points'] as List)?.map((item) => item as String)?.toList();
-
-        List<Position> positions = (result['path'] as List)
-            ?.map((item) => Position(
-                  latitude: item['lat'] as double,
-                  longitude: item['lng'] as double,
-                ) as Position)
-            ?.toList();
-
-        markers.clear();
-
-        positions.forEach((p) async {
-          await _pinMarker(p);
-        });
-
-        await _createPolylines(positions);
-
-        String rDistance = result['distance'];
-        String rEstimatedPrice = result['estimatedPrice'];
-        String rPartner = result['partner'];
-
-        setState(() {
-          showPlaceForm = false;
-          matchingConfirmRequest = true;
-          distance = rDistance;
-          estimatedPrice = rEstimatedPrice;
-          partner = rPartner;
-        });
+        onResult(value);
       } catch (e) {
+        print(e);
+      }
+    });
+
+    this.socket.on('partner_move', (value) async {
+      try {
+        await onPartnerMove(value);
+      } catch(e) {
         print(e);
       }
     });
@@ -499,28 +607,30 @@ class _MapViewState extends State<MapView> {
           ),
           // showing the route
           showPlaceForm ? buildForm(width, context) : Text(""),
-          showCancelForm
-              ? SafeArea(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: showPlaceForm
-                        ? RaisedButton(
-                            onPressed: () {
-                              resetBoolean();
-                            },
-                            color: kSecondaryColor,
-                            child: Text("Cancel Matching",
-                                style: TextStyle(color: Colors.white)),
-                          )
-                        : null,
-                  ),
-                )
+          showMatchingInProcess
+              ? buildMatchingInProcess()
               : Text(""),
           // buildButtons(),
           matchingConfirmRequest ? buildDetailBox(width, context) : Text(""),
         ],
       ),
       // floatingActionButton: buildFloatingActionButton(context),
+    );
+  }
+
+  SafeArea buildMatchingInProcess() {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: RaisedButton(
+          onPressed: () {
+            resetBoolean();
+          },
+          color: kSecondaryColor,
+          child: Text("Cancel Matching",
+              style: TextStyle(color: Colors.white)),
+        ),
+      ),
     );
   }
 
@@ -697,9 +807,9 @@ class _MapViewState extends State<MapView> {
     } else {
       print("Finding Match");
       setState(() {
-        // findingMatch = true;
         showPlaceForm = false;
-        matchingConfirmRequest = true;
+        showMatchingInProcess = true;
+        // matchingConfirmRequest = true;
       });
     }
     // _calculateDistance().then((isCalculated) {
@@ -780,7 +890,9 @@ class _MapViewState extends State<MapView> {
     setState(() {
       markersPinned = false;
       showPlaceForm = true;
+      showMatchingInProcess = false;
       matchingConfirmRequest = false;
+      pendingForMatchConfirmation = false;
     });
   }
 
@@ -905,6 +1017,12 @@ class _MapViewState extends State<MapView> {
         ),
       ),
     );
+  }
+
+  void cancelMatching() {
+    polylineCoordinates.clear();
+    pinMarkersByAddresses();
+    resetBoolean();
   }
 
   Widget buildDetailConfirmation(
@@ -1104,11 +1222,11 @@ class _MapViewState extends State<MapView> {
             Container(
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
+                  children: ! pendingForMatchConfirmation ? <Widget>[
                     RaisedButton(
                       color: Colors.red,
                       onPressed: () {
-                        resetBoolean();
+                        cancelMatching();
                       },
                       child: Text(
                         "Cancel",
@@ -1121,14 +1239,29 @@ class _MapViewState extends State<MapView> {
                     RaisedButton(
                       color: Colors.green,
                       onPressed: () {
-                        resetBoolean();
+                        // resetBoolean();
+                        setState(() {
+                          pendingForMatchConfirmation = true;
+                        });
                       },
                       child: Text(
                         "Confirm",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
-                  ]),
+                  ]: <Widget>[
+                    RaisedButton(
+                      color: Colors.red,
+                      onPressed: () {
+                        cancelMatching();
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+              ),
             ),
             //status
             // Container(
