@@ -665,6 +665,17 @@ class _MapViewState extends State<MapView> {
     });
   }
 
+  void twoUserDownTaxi(bool isYou, int taxi) {
+    setState(() {
+      travelingStatus = MatchingStatus.TwoUserDownTaxi;
+      if(isYou) {
+        userOnTaxi = false;
+      }
+      pointStatuses[3] = PointStatus.Reached;
+      travelingFares[3] = taxi;
+    });
+  }
+
   Future<void> setStatus(value) async {
     Map<String, dynamic> decoded = jsonDecode(value);
     String status = decoded['status'] as String;
@@ -686,6 +697,11 @@ class _MapViewState extends State<MapView> {
         bool isYou = decoded['isYou'] as bool;
         int taxi = decoded['taxi'] as int;
         oneUserDownTaxi(isYou, taxi);
+        return;
+      case 'two_user_down_taxi':
+        bool isYou = decoded['isYou'] as bool;
+        int taxi = decoded['taxi'] as int;
+        twoUserDownTaxi(isYou, taxi);
         return;
     }
   }

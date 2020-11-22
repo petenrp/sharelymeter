@@ -18,9 +18,9 @@ function sleep(ms) {
                 socketId: socket,
                 topic: 'status',
                 body: JSON.stringify({
-                    status: 'one_user_down_taxi',
-                    isYou: false,
-                    taxi: 150,
+                    status: 'two_user_down_taxi',
+                    isYou: true,
+                    taxi: 220,
                 }),
             },
         });
