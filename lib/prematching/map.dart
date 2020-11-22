@@ -48,7 +48,6 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-
   BitmapDescriptor partnerIcon;
   Marker partnerMarker;
 
@@ -174,12 +173,15 @@ class _MapViewState extends State<MapView> {
       ),
     );
   }
-  
+
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
     ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png)).buffer.asUint8List();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))
+        .buffer
+        .asUint8List();
   }
 
   // Method for retrieving the current location
@@ -228,9 +230,12 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<Marker> _pinMarker(Position position,
-      {title = '', address = '', icon = BitmapDescriptor.defaultMarker,
-      zIndex = 0.0, String id = '' }) async {
-    if (id == '') id = '$position' ;
+      {title = '',
+      address = '',
+      icon = BitmapDescriptor.defaultMarker,
+      zIndex = 0.0,
+      String id = ''}) async {
+    if (id == '') id = '$position';
     markers.removeWhere((e) => e.markerId.value == id);
 
     Marker marker = Marker(
@@ -249,7 +254,7 @@ class _MapViewState extends State<MapView> {
 
     print('added');
     markers.add(marker);
-    setState((){});
+    setState(() {});
     return marker;
   }
 
@@ -449,17 +454,13 @@ class _MapViewState extends State<MapView> {
     double lat = result['lat'] as double;
     double lng = result['lng'] as double;
 
-    for(var i = 100000; i > 0; i --) {
-      Position newPosition = Position(latitude: lat, longitude: lng);
+    Position newPosition = Position(latitude: lat, longitude: lng);
 
-      Marker newMarker = await _pinMarker(newPosition, icon: partnerIcon, zIndex: 1.0, id: 'player');
-      setState(() {
-        partnerMarker = newMarker;
-      });
-
-      lat += 0.00001;
-      await Future.delayed(Duration(milliseconds: 5));
-    }
+    Marker newMarker = await _pinMarker(newPosition,
+        icon: partnerIcon, zIndex: 1.0, id: 'player');
+    setState(() {
+      partnerMarker = newMarker;
+    });
     
   }
 
@@ -501,13 +502,13 @@ class _MapViewState extends State<MapView> {
     double dy = rightMost - leftMost;
     double dx = topMost - bottomMost;
 
-    double offset = - pow(dy/dx, 0.35) * 0.06 - 0.065;
-    double padding = 80 + 22.8 * pow(dy/dx, 1);
+    double offset = -pow(dy / dx, 0.35) * 0.06 - 0.065;
+    double padding = 80 + 22.8 * pow(dy / dx, 1);
 
     print(offset);
     print(padding);
     print(dy);
-    
+
     // Accommodate the two locations within the
     // camera view of the map
     await mapController.animateCamera(
@@ -541,14 +542,20 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<void> setPartnerIcon() async {
-    final Uint8List markerIcon = await getBytesFromAsset('assets/images/partner.png', 100);
+    final Uint8List markerIcon =
+        await getBytesFromAsset('assets/images/partner.png', 100);
     setState(() {
       partnerIcon = BitmapDescriptor.fromBytes(markerIcon);
     });
   }
 
+  Future<void> serverCancelMatching() async {
+    buildInformationDialog(this.context, "Information", "Partner has canceled the matching.");
+    cancelMatching();
+  }
+
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     // _getCurrentLocation();
     setPartnerIcon();
@@ -560,7 +567,7 @@ class _MapViewState extends State<MapView> {
     });
 
     this.socket.on('cancel', (value) async {
-      resetBoolean();
+      serverCancelMatching();
     });
 
     this.socket.on('result', (value) async {
@@ -575,7 +582,7 @@ class _MapViewState extends State<MapView> {
     this.socket.on('partner_move', (value) async {
       try {
         await onPartnerMove(value);
-      } catch(e) {
+      } catch (e) {
         print(e);
       }
     });
@@ -607,9 +614,7 @@ class _MapViewState extends State<MapView> {
           ),
           // showing the route
           showPlaceForm ? buildForm(width, context) : Text(""),
-          showMatchingInProcess
-              ? buildMatchingInProcess()
-              : Text(""),
+          showMatchingInProcess ? buildMatchingInProcess() : Text(""),
           // buildButtons(),
           matchingConfirmRequest ? buildDetailBox(width, context) : Text(""),
         ],
@@ -627,8 +632,7 @@ class _MapViewState extends State<MapView> {
             resetBoolean();
           },
           color: kSecondaryColor,
-          child: Text("Cancel Matching",
-              style: TextStyle(color: Colors.white)),
+          child: Text("Cancel Matching", style: TextStyle(color: Colors.white)),
         ),
       ),
     );
@@ -637,132 +641,42 @@ class _MapViewState extends State<MapView> {
   // FloatingActionButton buildFloatingActionButton(BuildContext context) {
   //   return FloatingActionButton(
   //       onPressed: () {
-  //         showDialog(
-  //           context: context,
-  //           child: new AlertDialog(
-  //             title: Text("Confirmation"),
-  //             content: Container(
-  //               //color: Colors.amber,
-  //               height: 120,
-  //               child: Column(
-  //                 children: [
-  //                   Container(
-  //                     child: Column(
-  //                       children: [
-  //                         Row(
-  //                           mainAxisAlignment: MainAxisAlignment.start,
-  //                           children: [
-  //                             Text(
-  //                               "Start: ",
-  //                               style: TextStyle(
-  //                                 fontWeight: FontWeight.bold,
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         SizedBox(
-  //                           height: 10,
-  //                         ),
-  //                         Row(
-  //                           children: [
-  //                             SizedBox(
-  //                               width: 50,
-  //                             ),
-  //                             Text(
-  //                               _startAddress,
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         SizedBox(
-  //                           height: 20,
-  //                         ),
-  //                         Row(
-  //                           mainAxisAlignment: MainAxisAlignment.start,
-  //                           children: [
-  //                             Text(
-  //                               "Destination: ",
-  //                               style: TextStyle(
-  //                                 fontWeight: FontWeight.bold,
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         SizedBox(
-  //                           height: 10,
-  //                         ),
-  //                         Row(
-  //                           children: [
-  //                             SizedBox(
-  //                               width: 50,
-  //                             ),
-  //                             Text(
-  //                               _destinationAddress,
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             actions: <Widget>[
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   FlatButton(
-  //                     onPressed: () {
-  //                       Navigator.of(context).pop();
-  //                     },
-  //                     child: Text("No"),
-  //                   ),
-  //                   FlatButton(
-  //                     onPressed: () {
-  //                       destinationAdress = _destinationAddress;
-  //                       startAddress = _startAddress;
-  //                       final FirebaseAuth auth = FirebaseAuth.instance;
-  //                       Future<void> inputData() async {
-  //                         final User user = auth.currentUser;
-  //                         final uid = user.uid;
-  //                         return await DatabaseServices(uid: user.uid)
-  //                             .addingRoutingData(
-  //                           destLat,
-  //                           destLng,
-  //                           destinationAdress,
-  //                           startAddress,
-  //                           startLat,
-  //                           startLng,
-  //                           totalDistance,
-  //                           userID,
-  //                         );
-  //                       }
-
-  //                       inputData();
-
-  //                       Navigator.push(
-  //                         context,
-  //                         MaterialPageRoute(
-  //                           builder: (context) => ConfirmScreen(
-  //                             sLat: sLat,
-  //                             sLng: sLng,
-  //                             dLat: dLat,
-  //                             dLng: dLng,
-  //                           ),
-  //                         ),
-  //                       );
-  //                     },
-  //                     child: Text("Yes"),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         );
+  //         buildShowDialog(context);
   //       },
   //       child: Icon(Icons.done_all),
   //       backgroundColor: Colors.red);
   // }
+
+  buildInformationDialog(BuildContext context, String title, String content) async {
+    showDialog(
+      context: context,
+      child: new AlertDialog(
+        title: Text(title),
+        content: Wrap(
+          children: [
+            Container(
+              //color: Colors.amber,
+              child: Text(content),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   SafeArea buildButtons() {
     return SafeArea(
@@ -1221,46 +1135,48 @@ class _MapViewState extends State<MapView> {
             ),
             Container(
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: ! pendingForMatchConfirmation ? <Widget>[
-                    RaisedButton(
-                      color: Colors.red,
-                      onPressed: () {
-                        cancelMatching();
-                      },
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    RaisedButton(
-                      color: Colors.green,
-                      onPressed: () {
-                        // resetBoolean();
-                        setState(() {
-                          pendingForMatchConfirmation = true;
-                        });
-                      },
-                      child: Text(
-                        "Confirm",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ]: <Widget>[
-                    RaisedButton(
-                      color: Colors.red,
-                      onPressed: () {
-                        cancelMatching();
-                      },
-                      child: Text(
-                        "Cancel",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: !pendingForMatchConfirmation
+                    ? <Widget>[
+                        RaisedButton(
+                          color: Colors.red,
+                          onPressed: () {
+                            cancelMatching();
+                          },
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        RaisedButton(
+                          color: Colors.green,
+                          onPressed: () {
+                            // resetBoolean();
+                            setState(() {
+                              pendingForMatchConfirmation = true;
+                            });
+                          },
+                          child: Text(
+                            "Confirm",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ]
+                    : <Widget>[
+                        RaisedButton(
+                          color: Colors.red,
+                          onPressed: () {
+                            cancelMatching();
+                          },
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
               ),
             ),
             //status

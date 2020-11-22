@@ -52,9 +52,7 @@ const getQuery = (socket, type, position) => {
     const response = await axios.get('https://afternoon-tor-56476.herokuapp.com/all')
     const aliveSocket = response.data.filter( s => s.alive )
     if(aliveSocket.length > 0) {
-        // const type = 'partner_move';
         const type = 'request';
-        // const type = 'cancel';
 
         const socket = aliveSocket[0].socket;
         const result = url.format({
@@ -65,22 +63,5 @@ const getQuery = (socket, type, position) => {
         });
 
         await axios.get(result);
-        
-        
-        let lat = 13.651785;
-        let lng = 100.547337;
-
-        for(var i =0; i <= 1; i++) {
-            const result = url.format({
-                protocol: 'https',
-                hostname: 'afternoon-tor-56476.herokuapp.com',
-                pathname: '/publish',
-                query: getQuery(socket, 'partner_move', { lat, lng },),
-            });
-            await axios.get(result);
-            await sleep(5);
-
-            lat += 0.0001;
-        }
     }
 })();
