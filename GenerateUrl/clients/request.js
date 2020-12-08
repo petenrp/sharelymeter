@@ -13,7 +13,7 @@ const getQuery = (socket, type, position) => {
             socketId: socket,
             topic: 'result',
             body: JSON.stringify({
-                partner: 'Aof | 0800420423',
+                partner: 'Ying | 0984787891',
                 callTaxi: true,
                 distance: '1.25 KM',
                 path: [
@@ -28,8 +28,8 @@ const getQuery = (socket, type, position) => {
                 points: [ 
                     'KMUTT', 
                     'The Cube', 
-                    'Cen 2', 
-                    'Green night market'
+                    'Central Rama 2', 
+                    'Green day night market'
                 ]
             }),
         };

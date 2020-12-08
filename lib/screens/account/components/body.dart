@@ -88,6 +88,7 @@ class _BodyState extends State<Body> {
             Map<String, dynamic> data = snapshot.data.data();
             data_id = data;
             String name = data['firstname'] + " " + data['lastname'];
+            print(data);
             print("Full Name: ${data['firstname']} ${data['lastname']}");
             // return Text("Full Name: ${data['firstname']} ${data['lastname']}");
 

@@ -50,7 +50,7 @@ class ScheduleRide extends StatelessWidget {
                 bottom: kDefaultPadding / 4,
               ),
               child: Text(
-                'Schedule ride : ',
+                'On matching : ',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

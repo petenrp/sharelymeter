@@ -31,6 +31,7 @@ dependencies:
   google_maps_flutter:
   google_map_polyline:
   permission:
+  intl: ^0.16.1
   provider: ^4.3.2+2
   flutter_svg: ^0.18.1
   flutter_icons: ^1.1.0

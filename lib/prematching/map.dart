@@ -4,11 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:provider/provider.dart';
 // Stores the Google Maps API Key
 import 'package:sharelymeter/googlemapapi.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:sharelymeter/models/user.dart';
 import 'dart:async';
 import '../models/route.dart';
 import 'package:sharelymeter/shared/constants.dart';
@@ -31,8 +33,10 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:uuid/uuid.dart';
 import 'package:sharelymeter/prematching/address_search.dart';
 import 'package:sharelymeter/prematching/place_service.dart';
-
+import 'package:intl/intl.dart';
 import 'dart:math' show cos, sqrt, asin;
+
+final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
 
 enum MatchingStatus {
   WaitingForMatching,
@@ -45,10 +49,7 @@ enum MatchingStatus {
   TwoUserDownTaxi,
 }
 
-enum PointStatus {
-  Unreached,
-  Reached
-}
+enum PointStatus { Unreached, Reached }
 
 class PointFare {
   PointFare(
@@ -68,8 +69,18 @@ class MapView extends StatefulWidget {
   final double sLng;
   final double dLat;
   final double dLng;
+  final String userId;
+  final String fullName;
+  final String phoneNumber;
 
-  MapView({this.sLat, this.sLng, this.dLat, this.dLng});
+  MapView(
+      {this.sLat,
+      this.sLng,
+      this.dLat,
+      this.dLng,
+      this.userId,
+      this.fullName,
+      this.phoneNumber});
 
   @override
   _MapViewState createState() => _MapViewState();
@@ -87,14 +98,19 @@ class _MapViewState extends State<MapView> {
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   GoogleMapController mapController;
 
+  DateTime confirmedDate;
+
   final Geolocator _geolocator = Geolocator();
 
   Position _currentPosition;
   String _currentAddress;
 
+  Position startingPoint;
+  Position destinationPoint;
+
   String _streetNumber = '';
-  String _startAddress = 'KMUTT';
-  String _destinationAddress = 'Central rama 2';
+  String _startAddress = '';
+  String _destinationAddress = '';
   String _placeDistance = '';
 
   int _taxiMetreFare = 0;
@@ -130,7 +146,6 @@ class _MapViewState extends State<MapView> {
   double destLat = 0;
   double destLng = 0;
   double totalDistance = 0;
-  String userID = "Test";
 
   Set<Marker> markers = {};
 
@@ -482,6 +497,11 @@ class _MapViewState extends State<MapView> {
       width: 3,
     );
     polylines[id] = polyline;
+
+    setState(() {
+      polylines = polylines;
+      polylineCoordinates = polylineCoordinates;
+    });
   }
 
   Future<void> onPartnerMove(value) async {
@@ -507,6 +527,17 @@ class _MapViewState extends State<MapView> {
         this.context, "Confirm Taxi Metre", taxi.toString());
   }
 
+  void reEnterTaxi(value) async {
+    showTaxiMetreDialog();
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(
+          'Partner do not agree on the fare',
+        ),
+      ),
+    );
+  }
+
   void onResult(value) async {
     Map<String, dynamic> result = jsonDecode(value);
     travelingFares = [-1, -1, -1, -1];
@@ -526,6 +557,13 @@ class _MapViewState extends State<MapView> {
               longitude: item['lng'] as double,
             ) as Position)
         ?.toList();
+
+    setState(() {
+      travelingFares = travelingFares;
+      pointStatuses = pointStatuses;
+      detailPoints = detailPoints;
+      positions = positions;
+    });
 
     markers.clear();
 
@@ -579,19 +617,24 @@ class _MapViewState extends State<MapView> {
       ),
     );
 
-    String rDistance = result['distance'];
-    String rEstimatedPrice = result['estimatedPrice'];
-    String rPartner = result['partner'];
+    try {
+      String rDistance =
+          (result['distance'] / 1000).toStringAsFixed(2) + ' Km.';
+      String rEstimatedPrice = result['estimatedPrice'];
+      String rPartner = result['partner'];
 
-    resetBoolean();
-    setState(() {
-      showPlaceForm = false;
-      showTravelingDetail = true;
-      travelingStatus = MatchingStatus.RequestConfirmation;
-      distance = rDistance;
-      estimatedPrice = rEstimatedPrice;
-      partner = rPartner;
-    });
+      resetBoolean();
+      setState(() {
+        showPlaceForm = false;
+        showTravelingDetail = true;
+        travelingStatus = MatchingStatus.RequestConfirmation;
+        distance = rDistance;
+        estimatedPrice = rEstimatedPrice;
+        partner = rPartner;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> setPartnerIcon() async {
@@ -619,7 +662,7 @@ class _MapViewState extends State<MapView> {
   }
 
   void noOneOnTaxi() {
-    setState((){
+    setState(() {
       userOnTaxi = false;
       travelingStatus = MatchingStatus.NoOneOnTaxiYet;
     });
@@ -635,7 +678,7 @@ class _MapViewState extends State<MapView> {
   void oneUserOnTaxi(bool isYou, int taxi) {
     setState(() {
       travelingStatus = MatchingStatus.OneUserOnTaxi;
-      if(isYou) {
+      if (isYou) {
         userOnTaxi = true;
       }
       pointStatuses[0] = PointStatus.Reached;
@@ -646,7 +689,7 @@ class _MapViewState extends State<MapView> {
   void twoUserOnTaxi(bool isYou, int taxi) {
     setState(() {
       travelingStatus = MatchingStatus.TwoUserOnTaxi;
-      if(isYou) {
+      if (isYou) {
         userOnTaxi = true;
       }
       pointStatuses[1] = PointStatus.Reached;
@@ -657,7 +700,7 @@ class _MapViewState extends State<MapView> {
   void oneUserDownTaxi(bool isYou, int taxi) {
     setState(() {
       travelingStatus = MatchingStatus.OneUserDownTaxi;
-      if(isYou) {
+      if (isYou) {
         userOnTaxi = false;
       }
       pointStatuses[2] = PointStatus.Reached;
@@ -668,7 +711,7 @@ class _MapViewState extends State<MapView> {
   void twoUserDownTaxi(bool isYou, int taxi) {
     setState(() {
       travelingStatus = MatchingStatus.TwoUserDownTaxi;
-      if(isYou) {
+      if (isYou) {
         userOnTaxi = false;
       }
       pointStatuses[3] = PointStatus.Reached;
@@ -677,53 +720,96 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<void> setStatus(value) async {
-    Map<String, dynamic> decoded = jsonDecode(value);
-    String status = decoded['status'] as String;
-    switch (status) {
-      case 'no_one_on_taxi':
-        noOneOnTaxi();
-        return;
-      case 'one_user_on_taxi':
-        bool isYou = decoded['isYou'] as bool;
-        int taxi = decoded['taxi'] as int;
-        oneUserOnTaxi(isYou, taxi);
-        return;
-      case 'two_user_on_taxi':
-        bool isYou = decoded['isYou'] as bool;
-        int taxi = decoded['taxi'] as int;
-        twoUserOnTaxi(isYou, taxi);
-        return;
-      case 'one_user_down_taxi':
-        bool isYou = decoded['isYou'] as bool;
-        int taxi = decoded['taxi'] as int;
-        oneUserDownTaxi(isYou, taxi);
-        return;
-      case 'two_user_down_taxi':
-        bool isYou = decoded['isYou'] as bool;
-        int taxi = decoded['taxi'] as int;
-        twoUserDownTaxi(isYou, taxi);
-        return;
+    try {
+      final decoded = jsonDecode(value);
+      String status = decoded['status'] as String;
+      print(decoded);
+      switch (status) {
+        case 'no_one_on_taxi':
+          noOneOnTaxi();
+          return;
+        case 'one_user_on_taxi':
+          bool isYou = decoded['isYou'] as bool;
+          int taxi = decoded['taxi'] as int;
+          oneUserOnTaxi(isYou, taxi);
+          return;
+        case 'two_user_on_taxi':
+          bool isYou = decoded['isYou'] as bool;
+          int taxi = decoded['taxi'] as int;
+          twoUserOnTaxi(isYou, taxi);
+          return;
+        case 'one_user_down_taxi':
+          bool isYou = decoded['isYou'] as bool;
+          int taxi = decoded['taxi'] as int;
+          oneUserDownTaxi(isYou, taxi);
+          return;
+        case 'two_user_down_taxi':
+          bool isYou = decoded['isYou'] as bool;
+          int taxi = decoded['taxi'] as int;
+          twoUserDownTaxi(isYou, taxi);
+          return;
+      }
+    } catch (e) {
+      print(e);
     }
+  }
+
+  Future<void> onDone(value) async {
+    final d = jsonDecode(value);
+    resetBoolean();
+    buildLastAcknowledgement(this.context, "Summary", d.toList());
   }
 
   @override
   void initState() {
     super.initState();
     // _getCurrentLocation();
+
     setPartnerIcon();
 
     this.socket.on('connect', (_) {
-      print('Connected');
-      this.socket.emit('request',
-          '{"src":{"lat":13.6494925,"lng":100.4953804},"dest":{"lat":13.664666,"lng":100.441415}}');
+      final id = widget.userId;
+      final name = widget.fullName;
+      final tel = widget.phoneNumber;
+      final content = '{"id":"$id", "name": "$name", "tel": "$tel"}';
+      print("Emitting User");
+      print(content);
+      this.socket.emit('user', content);
+
+      // onDone('[{ "user": "aof", "pay": true, "taxi": 30 }]');
     });
+
+    this.socket.on('error', (e) async {
+      print(e['message']);
+    });
+
+    this.socket.on('connect_error', (e) {
+      print(e);
+    });
+
+    this.socket.on('reconnect', (e) {
+      print('Reconnect: $e');
+    });
+
+    this.socket.on('re_enter_taxi', (value) {
+      try {
+        reEnterTaxi(value);
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    this.socket.on('connect_timeout', (e) {
+      print(e);
+    });
+
+    //connect_timeout
 
     this.socket.on('cancel', (value) async {
       serverCancelMatching();
     });
 
     this.socket.on('result', (value) async {
-      // print(value);
       try {
         onResult(value);
       } catch (e) {
@@ -749,19 +835,33 @@ class _MapViewState extends State<MapView> {
 
     this.socket.on('status', (value) async {
       try {
+        print(value);
         setStatus(value);
       } catch (e) {
         print(e);
       }
     });
 
-    this.socket.connect();
+    this.socket.on('done', (value) async {
+      try {
+        onDone(value);
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    final status = this.socket.connected;
+    print('Sock connnected: $status');
+    if (!status) {
+      this.socket.connect();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       key: _scaffoldKey,
       body: Stack(
@@ -783,7 +883,8 @@ class _MapViewState extends State<MapView> {
           // showing the route
           showPlaceForm ? buildForm(width, context) : Text(""),
           travelingStatus == MatchingStatus.WaitingForMatching
-            ? buildMatchingInProcess() : Text(""),
+              ? buildMatchingInProcess()
+              : Text(""),
           // buildButtons(),
           showTravelingDetail ? buildDetailBox(width, context) : Text(""),
         ],
@@ -798,6 +899,7 @@ class _MapViewState extends State<MapView> {
         alignment: Alignment.topCenter,
         child: RaisedButton(
           onPressed: () {
+            this.socket.emit('decline', '');
             resetBoolean();
           },
           color: kSecondaryColor,
@@ -827,7 +929,7 @@ class _MapViewState extends State<MapView> {
           direction: Axis.vertical,
           children: [
             Container(
-              child: Text("The current taxi metre is " + content),
+              child: Text("The current taxi metre is " + content + "?"),
             ),
           ],
         ),
@@ -839,6 +941,7 @@ class _MapViewState extends State<MapView> {
               FlatButton(
                 color: Colors.red,
                 onPressed: () {
+                  this.socket.emit('taxi', '{"confirm": false}');
                   Navigator.of(context).pop();
                 },
                 child: Text("Cancel"),
@@ -847,6 +950,7 @@ class _MapViewState extends State<MapView> {
               FlatButton(
                 color: kPrimaryColor,
                 onPressed: () {
+                  this.socket.emit('taxi', '{"confirm": true}');
                   Navigator.of(context).pop();
                 },
                 child: Text("Confirm"),
@@ -856,6 +960,44 @@ class _MapViewState extends State<MapView> {
         ],
       ),
     );
+  }
+
+  buildLastAcknowledgement(
+      BuildContext context, String title, List<dynamic> content) async {
+    Size size = MediaQuery.of(context).size;
+    showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return new AlertDialog(
+            title: Text(title),
+            content: Wrap(
+              direction: Axis.vertical,
+              children: content.map((d) {
+                final user = d['user'];
+                final taxi = d['taxi'];
+                return Container(
+                  child: Text('$user pay \n$taxi'),
+                );
+              }).toList() as List<Widget>,
+            ),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FlatButton(
+                    color: kPrimaryColor,
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+        );
   }
 
   buildTaxiMetreDialog(
@@ -892,6 +1034,7 @@ class _MapViewState extends State<MapView> {
             children: [
               FlatButton(
                 onPressed: () {
+                  this.socket.emit('getInOut', '{"taxi": $_taxiMetreFare}');
                   Navigator.of(context).pop();
                 },
                 child: Text("OK"),
@@ -978,6 +1121,19 @@ class _MapViewState extends State<MapView> {
       await pinMarkersByAddresses();
     } else {
       // find match
+      final sLat = startingPoint.latitude;
+      final sLng = startingPoint.longitude;
+      final sName = _startAddress;
+
+      final dLat = destinationPoint.latitude;
+      final dLng = destinationPoint.longitude;
+      final dName = _destinationAddress;
+
+      final content =
+          '{"src":{"name":"$sName","lat":$sLat,"lng":$sLng},"dest":{"name":"$dName","lat":$dLat,"lng":$dLng}}';
+      print(content);
+
+      this.socket.emit('request', content);
       setState(() {
         showPlaceForm = false;
         travelingStatus = MatchingStatus.WaitingForMatching;
@@ -1015,11 +1171,10 @@ class _MapViewState extends State<MapView> {
       Position _northeastCoordinates;
       Position _southwestCoordinates;
 
-      Position startingPoint = await _getPositionFromAddress(_startAddress);
+      startingPoint = await _getPositionFromAddress(_startAddress);
       await _pinMarker(startingPoint);
 
-      Position destinationPoint =
-          await _getPositionFromAddress(_destinationAddress);
+      destinationPoint = await _getPositionFromAddress(_destinationAddress);
       await _pinMarker(destinationPoint);
 
       print(markers);
@@ -1060,6 +1215,7 @@ class _MapViewState extends State<MapView> {
 
   void resetBoolean() {
     setState(() {
+      confirmedDate = null;
       markersPinned = false;
       showPlaceForm = true;
       showTravelingDetail = false;
@@ -1188,16 +1344,33 @@ class _MapViewState extends State<MapView> {
         alignment: Alignment.bottomCenter,
         child: Padding(
           padding: EdgeInsets.only(bottom: kDefaultPadding * 0.5),
-          child: buildTravelingDetail(size, pointStatuses, detailPoints, travelingFares),
+          child: buildTravelingDetail(
+              size, pointStatuses, detailPoints, travelingFares),
         ),
       ),
     );
   }
 
   void cancelMatching() {
+    this.socket.emit('decline', '');
     polylineCoordinates.clear();
     pinMarkersByAddresses();
     resetBoolean();
+  }
+
+  void confirmMatching() {
+    this.socket.emit('confirm', '');
+    setState(() {
+      travelingStatus = MatchingStatus.WaitingForConfirmation;
+    });
+  }
+
+  void getInOut() {
+    if (travelingStatus == MatchingStatus.NoOneOnTaxiYet) {
+      this.socket.emit('getInOut', '{}');
+    } else {
+      showTaxiMetreDialog();
+    }
   }
 
   Widget buildTravelingDetail(
@@ -1206,7 +1379,10 @@ class _MapViewState extends State<MapView> {
     List<String> waypoints,
     List<int> fares,
   ) {
-    const dateAndTime = 'date and time';
+    if (confirmedDate == null) {
+      confirmedDate = DateTime.now();
+    }
+    String dateAndTime = formatter.format(confirmedDate);
     List<PointFare> points = [
       PointFare(status[0], waypoints[0], fares[0]),
       null,
@@ -1238,9 +1414,7 @@ class _MapViewState extends State<MapView> {
           color: Colors.green,
           onPressed: () {
             // resetBoolean();
-            setState(() {
-              travelingStatus = MatchingStatus.WaitingForConfirmation;
-            });
+            confirmMatching();
           },
           child: Text(
             "Confirm",
@@ -1262,18 +1436,17 @@ class _MapViewState extends State<MapView> {
         ),
       ];
     } else {
-
       String buttonText = "";
       bool disabled = false;
-      
+
       if (userOnTaxi) {
-        buttonText = "Get Down";
-        if(travelingStatus == MatchingStatus.OneUserOnTaxi) {
+        buttonText = "Get Off";
+        if (travelingStatus == MatchingStatus.OneUserOnTaxi) {
           disabled = true;
         }
       } else {
-        if(travelingStatus == MatchingStatus.OneUserDownTaxi
-          || travelingStatus == MatchingStatus.TwoUserDownTaxi) {
+        if (travelingStatus == MatchingStatus.OneUserDownTaxi ||
+            travelingStatus == MatchingStatus.TwoUserDownTaxi) {
           buttonText = "Done";
         } else {
           buttonText = "Get In";
@@ -1283,9 +1456,12 @@ class _MapViewState extends State<MapView> {
       actions = <Widget>[
         RaisedButton(
           color: kPrimaryColor,
-          onPressed: disabled ? null : () {
-            // Get In Taxi
-          },
+          onPressed: disabled
+              ? null
+              : () {
+                  // Get In Taxi
+                  getInOut();
+                },
           child: Text(
             buttonText,
             style: TextStyle(color: Colors.white),
@@ -1293,7 +1469,6 @@ class _MapViewState extends State<MapView> {
         ),
       ];
     }
-
 
     return Wrap(children: [
       Container(
@@ -1369,8 +1544,9 @@ class _MapViewState extends State<MapView> {
                             child: Icon(
                               FlutterIcons.radio_button_checked_mdi,
                               size: 20,
-                              color: point.status == PointStatus.Unreached 
-                                ? kLightGreyColor: Colors.green,
+                              color: point.status == PointStatus.Unreached
+                                  ? kLightGreyColor
+                                  : Colors.green,
                             ),
                           ),
                           Container(
@@ -1391,7 +1567,9 @@ class _MapViewState extends State<MapView> {
                                       ),
                                     ),
                                     Text(
-                                      point.fare == -1? '???': point.fare.toString() + ' Baht',
+                                      point.fare == -1
+                                          ? '???'
+                                          : point.fare.toString() + ' Baht',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
